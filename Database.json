@@ -1,1 +1,11 @@
-asyu
+{
+  "security": {
+    "password": "neuro",
+    "users": [
+      {
+        "username": "zone",
+        "phoneNumber": "6282120158690"
+      },
+    ]
+  }
+}
