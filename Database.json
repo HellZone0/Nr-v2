@@ -1,6 +1,11 @@
 {
   "security": {
     "password": "neuro2",
-    "users": []
+    "users": [
+      {
+        "username": "indosat",
+        "phoneNumber": "6285729216744"
+      }
+    ]
   }
 }
