@@ -1,11 +1,6 @@
 {
   "security": {
     "password": "neuro2",
-    "users": [
-      {
-        "username": "zone",
-        "phoneNumber": "6282120158690"
-      },
-    ]
+    "users": []
   }
 }
