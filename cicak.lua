@@ -37,17 +37,18 @@ local Buy_Baits = Window:CreateTab("Buy Bait", "cog")
 local SettingsTab = Window:CreateTab("Settings", "cog")
 
 -- ====================================================================
---                      KODE UNTUK FITUR EVENT (Sudah Diperbaiki)
+--                      KODE UNTUK FITUR EVENT (sudah Diperbarui)
 -- ====================================================================
 
 local selectedEvent = "Megalodon Event" -- Nilai default
+local teleportPlatform = nil -- Variabel untuk menyimpan referensi papan transparan
 
 EventsTab:CreateSection("Teleport to Event")
 
 EventsTab:CreateDropdown({
     Name = "Select Event",
     Description = "Choose the event to teleport to.",
-    Options = { "Megalodon Event", "Golden Fish Event", "Rainbow Fish Event" }, -- Tambahkan event lain di sini
+    Options = { "Megalodon Event", "Golden Fish Event", "Rainbow Fish Event" },
     CurrentOption = "Megalodon Event",
     Flag = "EventDropdown",
     Callback = function(option)
@@ -84,7 +85,31 @@ EventsTab:CreateButton({
         end
 
         if destination then
+            -- Hancurkan papan sebelumnya jika ada
+            if teleportPlatform and teleportPlatform.Parent then
+                teleportPlatform:Destroy()
+            end
+
             LocalPlayer.Character.HumanoidRootPart.CFrame = destination
+
+            -- Buat papan transparan
+            teleportPlatform = Instance.new("Part")
+            teleportPlatform.Name = "TemporaryTeleportPlatform"
+            teleportPlatform.Size = Vector3.new(20, 1, 20) -- Sesuaikan ukuran papan
+            teleportPlatform.CFrame = destination * CFrame.new(0, -2, 0) -- Posisikan sedikit di bawah
+            teleportPlatform.Transparency = 1
+            teleportPlatform.CanCollide = true
+            teleportPlatform.Anchored = true
+            teleportPlatform.Parent = Workspace
+
+            -- Hancurkan papan setelah 10 detik
+            task.delay(10, function()
+                if teleportPlatform and teleportPlatform.Parent then
+                    teleportPlatform:Destroy()
+                    teleportPlatform = nil
+                end
+            end)
+
             Rayfield:Notify({
                 Title = "Success!",
                 Content = "Teleported to " .. eventName,
