@@ -117,7 +117,7 @@ task.wait(1)
 net:WaitForChild("RF/SellAllItems"):InvokeServer()
 task.wait(1)
 
-LocalPlayer.Character.HumanoidRootPart.CFrame = originalCFrame
+LocalPlayer.Character.HumanoidRootPart.CFrame = originalCframe
 end)
 task.wait(20)
 end
@@ -555,7 +555,7 @@ Duration = 3,
 end,
 })
 
--- Anti-AFK Feature
+-- Anti-AFK Feature (Updated)
 PlayerTab:CreateToggle({
 Name = "Anti-AFK",
 CurrentValue = false,
@@ -563,27 +563,15 @@ Flag = "Anti-AFK",
 Callback = function(value)
     antiAfkEnabled = value
     if value then
-        NotifySuccess("Anti-AFK Aktif", "Karakter akan bergerak sedikit untuk menghindari kick.")
+        NotifySuccess("Anti-AFK Aktif", "Mensimulasikan gerakan untuk menghindari kick.")
         task.spawn(function()
             while antiAfkEnabled do
-                local char = LocalPlayer.Character
-                local hum = char and char:FindFirstChildOfClass("Humanoid")
+                local hum = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
                 if hum then
-                    local currentPos = char:GetPivot().Position
-                    local targetPos = currentPos + Vector3.new(0.5, 0, 0)
-                    hum:MoveTo(targetPos)
+                    -- Mensimulasikan lompatan tanpa bergerak
+                    hum:ChangeState(Enum.HumanoidStateType.Jumping)
                 end
-                task.wait(5) -- Tunggu 5 detik
-                if antiAfkEnabled then
-                    local char = LocalPlayer.Character
-                    local hum = char and char:FindFirstChildOfClass("Humanoid")
-                    if hum then
-                        local currentPos = char:GetPivot().Position
-                        local targetPos = currentPos + Vector3.new(-0.5, 0, 0)
-                        hum:MoveTo(targetPos)
-                    end
-                    task.wait(5)
-                end
+                task.wait(5)
             end
         end)
     else
