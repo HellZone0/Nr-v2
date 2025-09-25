@@ -637,7 +637,7 @@ local islandCoords = {
 ["10"] = { name = "Isoteric Island", position = Vector3.new(1987, 4, 1400) },
 ["11"] = { name = "Lost Isle", position = Vector3.new(-3670.30078125, -113.00000762939453, -1128.0589599609375)},
 ["12"] = { name = "Lost Isle [Lost Shore]", position = Vector3.new(-3697, 97, -932)},
-["13"] = { name = "Lost Isle [Sisyphus]", position = Vector3.new(-3719.850830078125, -113.00000762939453, -958.6303100585938)},
+["13"] = { name = "Lost Isle [Sisyphus]", position = Vector3.new(--3728.21606, -135.074417, -1012.12744, -0.977224171, 7.74980258e-09, -0.212209702, 1.566994e-08, 1, -3.5640408e-08, 0.212209702, -3.81539813e-08, -0.977224171)},
 ["14"] = { name = "Lost Isle [Treasure Hall]", position = Vector3.new(-3652, -298.25, -1469)},
 ["15"] = { name = "Lost Isle [Treasure Room]", position = Vector3.new(-3652, -283.5, -1651.5)}
 }
@@ -702,4 +702,5 @@ end
 -- Memaksa efek "Luck Bait"
 local bait = require(game:GetService("ReplicatedStorage").Baits["Luck Bait"])
 bait.Luck = 999999999
+
 
