@@ -37,11 +37,12 @@ local Buy_Baits = Window:CreateTab("Buy Bait", "cog")
 local SettingsTab = Window:CreateTab("Settings", "cog")
 
 -- ====================================================================
---                      KODE UNTUK FITUR EVENT (sudah Diperbarui)
+--                      KODE UNTUK FITUR EVENT (Sudah Diperbaiki)
 -- ====================================================================
 
 local selectedEvent = "Megalodon Event" -- Nilai default
 local teleportPlatform = nil -- Variabel untuk menyimpan referensi papan transparan
+local platformYOffset = -2 -- Nilai Y-Offset default
 
 EventsTab:CreateSection("Teleport to Event")
 
@@ -53,6 +54,23 @@ EventsTab:CreateDropdown({
     Flag = "EventDropdown",
     Callback = function(option)
         selectedEvent = option
+    end
+})
+
+EventsTab:CreateSlider({
+    Name = "Platform Y-Offset",
+    Description = "Adjusts the vertical position of the transparent platform.",
+    Range = {-10, 10},
+    Increment = 0.1,
+    CurrentValue = platformYOffset,
+    Flag = "PlatformYOffset",
+    Callback = function(value)
+        platformYOffset = value
+        if teleportPlatform and teleportPlatform.Parent then
+            local newCFrame = LocalPlayer.Character.HumanoidRootPart.CFrame
+            newCFrame = CFrame.new(newCFrame.Position.X, newCFrame.Position.Y + platformYOffset, newCFrame.Position.Z)
+            teleportPlatform.CFrame = newCFrame
+        end
     end
 })
 
@@ -95,18 +113,23 @@ EventsTab:CreateButton({
             -- Buat papan transparan
             teleportPlatform = Instance.new("Part")
             teleportPlatform.Name = "TemporaryTeleportPlatform"
-            teleportPlatform.Size = Vector3.new(20, 1, 20) -- Sesuaikan ukuran papan
-            teleportPlatform.CFrame = destination * CFrame.new(0, -2, 0) -- Posisikan sedikit di bawah
+            teleportPlatform.Size = Vector3.new(20, 1, 20)
+            teleportPlatform.CFrame = destination * CFrame.new(0, platformYOffset, 0)
             teleportPlatform.Transparency = 1
             teleportPlatform.CanCollide = true
             teleportPlatform.Anchored = true
             teleportPlatform.Parent = Workspace
 
-            -- Hancurkan papan setelah 10 detik
-            task.delay(10, function()
-                if teleportPlatform and teleportPlatform.Parent then
-                    teleportPlatform:Destroy()
-                    teleportPlatform = nil
+            -- Loop untuk menghancurkan papan ketika player bergerak menjauh
+            task.spawn(function()
+                local initialPosition = LocalPlayer.Character.HumanoidRootPart.Position
+                while wait(0.5) and teleportPlatform and teleportPlatform.Parent do
+                    local currentPosition = LocalPlayer.Character.HumanoidRootPart.Position
+                    if (currentPosition - initialPosition).Magnitude > 50 then -- Jika player bergerak lebih dari 50 stud
+                        teleportPlatform:Destroy()
+                        teleportPlatform = nil
+                        break
+                    end
                 end
             end)
 
@@ -614,7 +637,7 @@ local islandCoords = {
     ["10"] = { name = "Isoteric Island", position = Vector3.new(1987, 4, 1400) },
     ["11"] = { name = "Lost Isle", position = Vector3.new(-3670.30078125, -113.00000762939453, -1128.0589599609375)},
     ["12"] = { name = "Lost Isle [Lost Shore]", position = Vector3.new(-3697, 97, -932)},
-    ["13"] = { name = "Lost Isle [Sisyphus]", position = Vector3.new(-3719.850830078125, -113.00000762939453, -958.6303100585938)},
+    ["13"] = { name = "Lost Isle [Sisyphus]", position = Vector3.new(-3728.21606, -135.074417, -1012.12744, -0.977224171, 7.74980258e-09, -0.212209702, 1.566994e-08, 1, -3.5640408e-08, 0.212209702, -3.81539813e-08, -0.977224171)},
     ["14"] = { name = "Lost Isle [Treasure Hall]", position = Vector3.new(-3652, -298.25, -1469)},
     ["15"] = { name = "Lost Isle [Treasure Room]", position = Vector3.new(-3652, -283.5, -1651.5)}
 }
