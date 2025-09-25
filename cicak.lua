@@ -55,14 +55,6 @@ AutoSell = false,
 AutoFavorite = false
 }
 
--- New state for multi-favorite
-local favoriteRarities = {
-    Secret = false,
-    Mythic = false,
-    Legendary = false,
-    Epic = false
-}
-
 local function NotifySuccess(title, message)
 Rayfield:Notify({ Title = title, Content = message, Duration = 3, Image = "circle-check" })
 end
@@ -121,46 +113,29 @@ end
 end
 })
 
-AutoSellFavoriteTab:CreateSection("⭐ Pilih Kelangkaan Favorit")
-AutoSellFavoriteTab:CreateToggle({
-    Name = "Secret",
-    CurrentValue = false,
-    Flag = "FavoriteSecret",
-    Callback = function(value)
-        favoriteRarities.Secret = value
-        NotifySuccess("Kelangkaan Dipilih", "Secret: " .. tostring(value))
-    end
-})
-AutoSellFavoriteTab:CreateToggle({
-    Name = "Mythic",
-    CurrentValue = false,
-    Flag = "FavoriteMythic",
-    Callback = function(value)
-        favoriteRarities.Mythic = value
-        NotifySuccess("Kelangkaan Dipilih", "Mythic: " .. tostring(value))
-    end
-})
-AutoSellFavoriteTab:CreateToggle({
-    Name = "Legendary",
-    CurrentValue = false,
-    Flag = "FavoriteLegendary",
-    Callback = function(value)
-        favoriteRarities.Legendary = value
-        NotifySuccess("Kelangkaan Dipilih", "Legendary: " .. tostring(value))
-    end
-})
-AutoSellFavoriteTab:CreateToggle({
-    Name = "Epic",
-    CurrentValue = false,
-    Flag = "FavoriteEpic",
-    Callback = function(value)
-        favoriteRarities.Epic = value
-        NotifySuccess("Kelangkaan Dipilih", "Epic: " .. tostring(value))
+local selectedFavoriteRarity = "Pilih Rarity"
+local rarityOptions = {
+    "Pilih Rarity",
+    "Secret",
+    "Mythic",
+    "Legendary",
+    "Epic"
+}
+
+AutoSellFavoriteTab:CreateDropdown({
+    Name = "Pilih Kelangkaan Ikan Favorit",
+    Description = "Pilih kelangkaan ikan yang ingin difavoritkan.",
+    Options = rarityOptions,
+    CurrentOption = "Pilih Rarity",
+    Flag = "FavoriteRarityDropdown",
+    Callback = function(option)
+        selectedFavoriteRarity = option
+        NotifySuccess("Kelangkaan Dipilih", "Kelangkaan favorit telah diatur ke " .. option)
     end
 })
 
 AutoSellFavoriteTab:CreateToggle({
-Name = "⭐ Enable Auto Favorite",
+Name = "⭐ Auto Favorite",
 CurrentValue = false,
 Flag = "AutoFavorite",
 Callback = function(value)
@@ -174,11 +149,12 @@ Image = "circle-check"
 })
 task.spawn(function()
 while featureState.AutoFavorite do
-    -- Ini adalah placeholder.
-    -- Di sini Anda akan menambahkan logika untuk favorit
-    -- menggunakan 'remote' game jika Anda menemukannya.
-    -- Contoh: net:WaitForChild("RF/FavoriteFish"):InvokeServer(selectedFavoriteRarity)
-    -- Tanpa remote ini, fitur tidak akan berfungsi.
+    if selectedFavoriteRarity ~= "Pilih Rarity" then
+        -- Ini adalah placeholder.
+        -- Di sini Anda akan menambahkan logika untuk favorit
+        -- menggunakan 'remote' game jika Anda menemukannya.
+        -- Tanpa remote ini, fitur tidak akan berfungsi.
+    end
     task.wait(5)
 end
 end)
@@ -209,7 +185,7 @@ EventsTab:CreateSection("Teleport to Event")
 EventsTab:CreateDropdown({
 Name = "Select Event",
 Description = "Choose the event to teleport to.",
-Options = { "Megalodon Event", "Worm Hunt Event", "Ghost Shark Hunt Event" },
+Options = { "Megalodon Event", "Golden Fish Event", "Rainbow Fish Event" },
 CurrentOption = "Megalodon Event",
 Flag = "EventDropdown",
 Callback = function(option)
@@ -236,13 +212,13 @@ local eventName = selectedEvent
 
 if eventName == "Megalodon Event" then
 -- Koordinat baru untuk Megalodon Hunt
-destination = CFrame.new(412.70, 9.45, 4134.39) 
-elseif eventName == "Worm Hunt Event" then
--- Koordinat yang benar untuk Worm Hunt Event
-destination = CFrame.new(1565.37, 4.88, -64.07)
-elseif eventName == "Ghost Shark Hunt Event" then
--- Koordinat yang benar untuk Ghost Shark Hunt Event
-destination = CFrame.new(636.70, 3.63, 38909.87)
+destination = CFrame.new(1234, 567, 890) 
+elseif eventName == "Golden Fish Event" then
+-- Koordinat yang benar untuk Golden Fish Event
+destination = CFrame.new(987, 654, 321)
+elseif eventName == "Rainbow Fish Event" then
+-- Koordinat yang benar untuk Rainbow Fish Event
+destination = CFrame.new(111, 222, 333)
 end
 
 if destination then
