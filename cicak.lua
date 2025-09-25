@@ -753,6 +753,22 @@ end
 -- Settings Tab
 SettingsTab:CreateSection("Performance & Settings")
 
+-- Fungsi untuk menemukan dan menonaktifkan instance
+local function findAndDisable(parent)
+    for _, child in ipairs(parent:GetChildren()) do
+        if child:IsA("ParticleEmitter") or child:IsA("Sound") or child:IsA("Decal") then
+            child.Enabled = false
+            if child:IsA("Sound") then
+                child:Stop()
+            end
+        end
+        pcall(function()
+            findAndDisable(child)
+        end)
+    end
+end
+
+-- Fungsi utama untuk mengatur grafis
 local function setGraphics(enabled)
     if enabled then
         settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
@@ -762,6 +778,17 @@ local function setGraphics(enabled)
         Lighting.OutdoorAmbient = Color3.new(0,0,0)
         Lighting.Ambient = Color3.new(0,0,0)
         Lighting.Technology = Enum.Technology.Compatibility
+
+        pcall(function()
+            Lighting.Sky:Destroy()
+        end)
+        
+        -- Menonaktifkan efek partikel, suara, dan stiker
+        findAndDisable(Workspace)
+        findAndDisable(Lighting)
+        findAndDisable(ReplicatedStorage)
+
+        Rayfield:Notify({ Title = "FPS Booster", Content = "FPS Booster diaktifkan! Banyak efek visual telah dinonaktifkan.", Duration = 5 })
     else
         settings().Rendering.QualityLevel = Enum.QualityLevel.Automatic
         Lighting.GlobalShadows = true
@@ -770,22 +797,18 @@ local function setGraphics(enabled)
         Lighting.OutdoorAmbient = Color3.new(0.5, 0.5, 0.5)
         Lighting.Ambient = Color3.new(0.5, 0.5, 0.5)
         Lighting.Technology = Enum.Technology.ShadowMap
+
+        Rayfield:Notify({ Title = "FPS Booster", Content = "FPS Booster dinonaktifkan! Mungkin perlu Rejoin untuk mengembalikan semua efek.", Duration = 5 })
     end
 end
 
 SettingsTab:CreateToggle({
 Name = "🚀 FPS Booster",
-Description = "Mengurangi kualitas grafis untuk meningkatkan FPS.",
+Description = "Mengurangi kualitas grafis & mematikan efek untuk meningkatkan FPS.",
 CurrentValue = false,
 Flag = "FPSBooster",
 Callback = function(value)
-    if value then
-        setGraphics(true)
-        NotifySuccess("FPS Booster", "FPS Booster diaktifkan!")
-    else
-        setGraphics(false)
-        NotifySuccess("FPS Booster", "FPS Booster dinonaktifkan!")
-    end
+    setGraphics(value)
 end
 })
 
