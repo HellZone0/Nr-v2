@@ -113,8 +113,30 @@ end
 end
 })
 
+local selectedFavoriteFish = "Pilih Ikan"
+local fishOptions = {
+    "Pilih Ikan",
+    "Gura",
+    "Shark",
+    "Ghost Shark",
+    "Megalodon",
+    "Worm"
+}
+
+AutoSellFavoriteTab:CreateDropdown({
+    Name = "Pilih Ikan Favorit",
+    Description = "Pilih jenis ikan yang ingin difavoritkan.",
+    Options = fishOptions,
+    CurrentOption = "Pilih Ikan",
+    Flag = "FavoriteFishDropdown",
+    Callback = function(option)
+        selectedFavoriteFish = option
+        NotifySuccess("Ikan Dipilih", "Ikan favorit telah diatur ke " .. option)
+    end
+})
+
 AutoSellFavoriteTab:CreateToggle({
-Name = "⭐ Auto Favorite (HANYA UI)",
+Name = "⭐ Auto Favorite",
 CurrentValue = false,
 Flag = "AutoFavorite",
 Callback = function(value)
@@ -126,6 +148,18 @@ Content = "Fitur ini hanya akan berfungsi jika Anda memiliki 'remote' yang sesua
 Duration = 5,
 Image = "circle-check"
 })
+task.spawn(function()
+while featureState.AutoFavorite do
+    if selectedFavoriteFish ~= "Pilih Ikan" then
+        -- Ini adalah placeholder.
+        -- Di sini Anda akan menambahkan logika untuk favorit
+        -- menggunakan 'remote' game jika Anda menemukannya.
+        -- Contoh: net:WaitForChild("RF/FavoriteFish"):InvokeServer(selectedFavoriteFish)
+        -- Tanpa remote ini, fitur tidak akan berfungsi.
+    end
+    task.wait(5)
+end
+end)
 else
 Rayfield:Notify({
 Title = "Fitur Auto Favorite Dinonaktifkan",
