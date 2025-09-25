@@ -1,56 +1,37 @@
--- Rayfield UI Script untuk Menampilkan Koordinat
--- Letakkan script ini di StarterPlayer > StarterPlayerScripts
+--[[
+	WARNING: Heads up! This script has not been verified by ScriptBlox. Use at your own risk!
+]]
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "CoordinatesGui"
+screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 
-local Rayfield = loadstring(game:HttpGet("https://raw.githubusercontent.com/SiriusSoftwareLtd/Rayfield/main/source.lua"))()
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0.2, 0, 0.1, 0)
+frame.Position = UDim2.new(0.4, 0, 0.9, 0)
+frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+frame.BorderColor3 = Color3.fromRGB(255, 255, 255)
+frame.BorderSizePixel = 2
+frame.Active = true
+frame.Draggable = true
+frame.Parent = screenGui
 
-local player = game.Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local rootPart = character:WaitForChild("HumanoidRootPart")
-
--- Membuat UI Rayfield
-local window = Rayfield:Create{
-    Name = "Roblox Coordinate System",
-    Theme = "Dark",
-    Animations = true,
-    Draggable = true
-}
-
-local mainTab = window:CreateTab("Coordinates", 4483758156) -- Icon ID bisa diubah
-
--- Membuat label untuk menampilkan koordinat
-local coordinateLabel = mainTab:CreateLabel{
-    Text = "Loading...",
-    Colour = Color3.fromRGB(255, 255, 255)
-}
-
--- Fungsi untuk memperbarui teks label
-local function updateCoordinates()
-    -- Mengambil posisi HumanoidRootPart
-    local position = rootPart.Position
+local label = Instance.new("TextLabel")
+label.Size = UDim2.new(1, 0, 1, 0)
+label.Position = UDim2.new(0, 0, 0, 0)
+label.BackgroundTransparency = 1
+label.TextColor3 = Color3.fromRGB(255, 255, 255)
+label.TextScaled = true
+label.Parent = frame
+    local function updateCoordinates()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
     
-    -- Membulatkan dan memformat koordinat
-    local x = string.format("%.2f", position.X)
-    local y = string.format("%.2f", position.Y)
-    local z = string.format("%.2f", position.Z)
-    
-    -- Menggabungkan teks
-    local text = string.format("X: %s | Y: %s | Z: %s", x, y, z)
-    
-    -- Memperbarui teks pada label Rayfield
-    coordinateLabel:SetText(text)
+    while true do
+        local position = humanoidRootPart.Position
+        label.Text = string.format("X: %.2f, Y: %.2f, Z: %.2f", position.X, position.Y, position.Z)
+        wait(0.000000000001) -- Memperbarui setiap 0.1 detik
+    end
 end
 
--- Menjalankan fungsi updateCoordinates setiap frame
-game:GetService("RunService").RenderStepped:Connect(updateCoordinates)
-
--- Menambahkan tombol untuk menyembunyikan/menampilkan UI (opsional)
-mainTab:CreateButton{
-    Name = "Hide/Show UI",
-    Callback = function()
-        if window.Visible then
-            window:Hide()
-        else
-            window:Show()
-        end
-    end
-}
+spawn(updateCoordinates)
