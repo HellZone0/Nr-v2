@@ -55,6 +55,14 @@ AutoSell = false,
 AutoFavorite = false
 }
 
+-- New state for multi-favorite
+local favoriteRarities = {
+    Secret = false,
+    Mythic = false,
+    Legendary = false,
+    Epic = false
+}
+
 local function NotifySuccess(title, message)
 Rayfield:Notify({ Title = title, Content = message, Duration = 3, Image = "circle-check" })
 end
@@ -113,29 +121,46 @@ end
 end
 })
 
-local selectedFavoriteRarity = "Pilih Rarity"
-local rarityOptions = {
-    "Pilih Rarity",
-    "Secret",
-    "Mythic",
-    "Legendary",
-    "Epic"
-}
-
-AutoSellFavoriteTab:CreateDropdown({
-    Name = "Pilih Kelangkaan Ikan Favorit",
-    Description = "Pilih kelangkaan ikan yang ingin difavoritkan.",
-    Options = rarityOptions,
-    CurrentOption = "Pilih Rarity",
-    Flag = "FavoriteRarityDropdown",
-    Callback = function(option)
-        selectedFavoriteRarity = option
-        NotifySuccess("Kelangkaan Dipilih", "Kelangkaan favorit telah diatur ke " .. option)
+AutoSellFavoriteTab:CreateSection("⭐ Pilih Kelangkaan Favorit")
+AutoSellFavoriteTab:CreateToggle({
+    Name = "Secret",
+    CurrentValue = false,
+    Flag = "FavoriteSecret",
+    Callback = function(value)
+        favoriteRarities.Secret = value
+        NotifySuccess("Kelangkaan Dipilih", "Secret: " .. tostring(value))
+    end
+})
+AutoSellFavoriteTab:CreateToggle({
+    Name = "Mythic",
+    CurrentValue = false,
+    Flag = "FavoriteMythic",
+    Callback = function(value)
+        favoriteRarities.Mythic = value
+        NotifySuccess("Kelangkaan Dipilih", "Mythic: " .. tostring(value))
+    end
+})
+AutoSellFavoriteTab:CreateToggle({
+    Name = "Legendary",
+    CurrentValue = false,
+    Flag = "FavoriteLegendary",
+    Callback = function(value)
+        favoriteRarities.Legendary = value
+        NotifySuccess("Kelangkaan Dipilih", "Legendary: " .. tostring(value))
+    end
+})
+AutoSellFavoriteTab:CreateToggle({
+    Name = "Epic",
+    CurrentValue = false,
+    Flag = "FavoriteEpic",
+    Callback = function(value)
+        favoriteRarities.Epic = value
+        NotifySuccess("Kelangkaan Dipilih", "Epic: " .. tostring(value))
     end
 })
 
 AutoSellFavoriteTab:CreateToggle({
-Name = "⭐ Auto Favorite",
+Name = "⭐ Enable Auto Favorite",
 CurrentValue = false,
 Flag = "AutoFavorite",
 Callback = function(value)
@@ -149,12 +174,11 @@ Image = "circle-check"
 })
 task.spawn(function()
 while featureState.AutoFavorite do
-    if selectedFavoriteRarity ~= "Pilih Rarity" then
-        -- Ini adalah placeholder.
-        -- Di sini Anda akan menambahkan logika untuk favorit
-        -- menggunakan 'remote' game jika Anda menemukannya.
-        -- Tanpa remote ini, fitur tidak akan berfungsi.
-    end
+    -- Ini adalah placeholder.
+    -- Di sini Anda akan menambahkan logika untuk favorit
+    -- menggunakan 'remote' game jika Anda menemukannya.
+    -- Contoh: net:WaitForChild("RF/FavoriteFish"):InvokeServer(selectedFavoriteRarity)
+    -- Tanpa remote ini, fitur tidak akan berfungsi.
     task.wait(5)
 end
 end)
