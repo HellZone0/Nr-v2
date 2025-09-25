@@ -113,25 +113,24 @@ end
 end
 })
 
-local selectedFavoriteFish = "Pilih Ikan"
-local fishOptions = {
-    "Pilih Ikan",
-    "Gura",
-    "Shark",
-    "Ghost Shark",
-    "Megalodon",
-    "Worm"
+local selectedFavoriteRarity = "Pilih Rarity"
+local rarityOptions = {
+    "Pilih Rarity",
+    "Secret",
+    "Mythic",
+    "Legendary",
+    "Epic"
 }
 
 AutoSellFavoriteTab:CreateDropdown({
-    Name = "Pilih Ikan Favorit",
-    Description = "Pilih jenis ikan yang ingin difavoritkan.",
-    Options = fishOptions,
-    CurrentOption = "Pilih Ikan",
-    Flag = "FavoriteFishDropdown",
+    Name = "Pilih Kelangkaan Ikan Favorit",
+    Description = "Pilih kelangkaan ikan yang ingin difavoritkan.",
+    Options = rarityOptions,
+    CurrentOption = "Pilih Rarity",
+    Flag = "FavoriteRarityDropdown",
     Callback = function(option)
-        selectedFavoriteFish = option
-        NotifySuccess("Ikan Dipilih", "Ikan favorit telah diatur ke " .. option)
+        selectedFavoriteRarity = option
+        NotifySuccess("Kelangkaan Dipilih", "Kelangkaan favorit telah diatur ke " .. option)
     end
 })
 
@@ -150,11 +149,10 @@ Image = "circle-check"
 })
 task.spawn(function()
 while featureState.AutoFavorite do
-    if selectedFavoriteFish ~= "Pilih Ikan" then
+    if selectedFavoriteRarity ~= "Pilih Rarity" then
         -- Ini adalah placeholder.
         -- Di sini Anda akan menambahkan logika untuk favorit
         -- menggunakan 'remote' game jika Anda menemukannya.
-        -- Contoh: net:WaitForChild("RF/FavoriteFish"):InvokeServer(selectedFavoriteFish)
         -- Tanpa remote ini, fitur tidak akan berfungsi.
     end
     task.wait(5)
