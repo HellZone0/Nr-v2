@@ -6,9 +6,46 @@ local LocalPlayer = Players.LocalPlayer
 local UserInputService = game:GetService("UserInputService")
 local HttpService = game:GetService("HttpService")
 local TeleportService = game:GetService("TeleportService")
+local Lighting = game:GetService("Lighting")
 
 -- Load Rayfield
 local Rayfield = loadstring(game:HttpGet("https://raw.githubusercontent.com/SiriusSoftwareLtd/Rayfield/main/source.lua"))()
+
+-- ====== AUTOMATIC PERFORMANCE OPTIMIZATION ======
+local function ultimatePerformance()
+    local workspace = game:GetService("Workspace")
+    pcall(function()
+        local terrain = workspace:FindFirstChild("Terrain")
+        if terrain then
+            if terrain:FindFirstChild("Clouds") then terrain.Clouds:Destroy() end
+            terrain.WaterWaveSize = 0
+            terrain.WaterWaveSpeed = 0
+            terrain.WaterReflectance = 0
+            terrain.WaterTransparency = 0
+        end
+        Lighting.GlobalShadows = false
+        Lighting.FogEnd = 9e9
+        Lighting.Brightness = 2
+    end)
+end
+
+local function resetPerformance()
+    local workspace = game:GetService("Workspace")
+    pcall(function()
+        local terrain = workspace:FindFirstChild("Terrain")
+        if terrain then
+            -- Note: Restoring these is difficult without knowing original values.
+            -- This is a simple reset to a playable state.
+            terrain.WaterWaveSize = 0.5
+            terrain.WaterWaveSpeed = 0.5
+            terrain.WaterReflectance = 0.1
+            terrain.WaterTransparency = 0.5
+        end
+        Lighting.GlobalShadows = true
+        Lighting.FogEnd = 0
+        Lighting.Brightness = 2
+    end)
+end
 
 -- Window
 local Window = Rayfield:CreateWindow({
@@ -157,7 +194,7 @@ EventsTab:CreateButton({
 -- Remotes
 local net = ReplicatedStorage:WaitForChild("Packages"):WaitForChild("_Index"):WaitForChild("sleitnick_net@0.2.0"):WaitForChild("net")
 local rodRemote = net:WaitForChild("RF/ChargeFishingRod")
-local miniGameRemote = net:WaitForChild("RF/RequestFishingMinigameStarted")
+local miniGameRemote = net:WaitForChild("RE/RequestFishingMinigameStarted")
 local finishRemote = net:WaitForChild("RE/FishingCompleted")
 local equipRemote = net:WaitForChild("RE/EquipToolFromHotbar")
 
@@ -659,6 +696,34 @@ for _, data in pairs(islandCoords) do
 end 
 
 -- Settings Tab
+SettingsTab:CreateSection("Performance")
+SettingsTab:CreateToggle({
+    Name = "⚡ Aktifkan FPS Boost",
+    Description = "Menghilangkan efek visual untuk meningkatkan frame rate.",
+    CurrentValue = false,
+    Callback = function(val)
+        if val then
+            ultimatePerformance()
+            Rayfield:Notify({
+                Title = "FPS Boost",
+                Content = "FPS Boost diaktifkan!",
+                Duration = 3,
+                Image = "cpu"
+            })
+        else
+            -- Meskipun ini tidak mengembalikan semua ke keadaan semula,
+            -- tapi setidaknya akan mengembalikan beberapa properti penting.
+            resetPerformance()
+            Rayfield:Notify({
+                Title = "FPS Boost",
+                Content = "FPS Boost dinonaktifkan.",
+                Duration = 3,
+                Image = "cpu-off"
+            })
+        end
+    end
+})
+
 SettingsTab:CreateButton({ Name = "Rejoin Server", Callback = function() TeleportService:Teleport(game.PlaceId, LocalPlayer) end })
 SettingsTab:CreateButton({ Name = "Server Hop (New Server)", Callback = function()
     local placeId = game.PlaceId
