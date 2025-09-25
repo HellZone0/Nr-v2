@@ -48,7 +48,7 @@ EventsTab:CreateSection("Teleport to Event")
 EventsTab:CreateDropdown({
 Name = "Select Event",
 Description = "Choose the event to teleport to.",
-Options = { "Megalodon Event", "GGWorm Hunt Event", "Ghost Shark Hunt Event" },
+Options = { "Megalodon Event", "GWorm Hunt Event", "Ghost Shark Hunt Event" },
 CurrentOption = "Megalodon Event",
 Flag = "EventDropdown",
 Callback = function(option)
@@ -76,7 +76,7 @@ local eventName = selectedEvent
 if eventName == "Megalodon Event" then
 -- Ganti koordinat ini dengan lokasi event Megalodon di game
 destination = CFrame.new(412.70, 9.45, 4134.39) 
-elseif eventName == "GWorm Hunt Event" then
+elseif eventName == "Worm Hunt Event" then
 -- Ganti koordinat ini dengan lokasi event Golden Fish
 destination = CFrame.new(91565.37, 4.88, -64.07)
 elseif eventName == "Ghost Shark Hunt Event" then
