@@ -203,114 +203,67 @@ end
 --                      KODE UNTUK FITUR EVENT (Sudah Diperbaiki)
 -- ====================================================================
 
-local selectedEvent = "Megalodon Event" -- Nilai default
-local teleportPlatform = nil -- Variabel untuk menyimpan referensi papan transparan
+local selectedEvent = "Megalodon" -- Nilai default
+local autoTeleportEvent = false
 
 EventsTab:CreateSection("Teleport to Event")
 
 EventsTab:CreateDropdown({
-Name = "Select Event",
-Description = "Choose the event to teleport to.",
-Options = { "Megalodon Event", "Golden Fish Event", "Rainbow Fish Event" },
-CurrentOption = "Megalodon Event",
+Name = "Pilih Event",
+Description = "Pilih event untuk Teleport.",
+Options = { "Megalodon", "GoldenFish", "RainbowFish" }, -- Nama model di game
+CurrentOption = "Megalodon",
 Flag = "EventDropdown",
 Callback = function(option)
 selectedEvent = option
 end
 })
 
+local function teleportToEvent(eventModelName)
+    local eventModel = Workspace:FindFirstChild(eventModelName) or Workspace:FindFirstChild("Megalodon Hunt") or Workspace:FindFirstChild("Golden Fish Hunt") or Workspace:FindFirstChild("Rainbow Fish Hunt")
+
+    if eventModel and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        local hrp = LocalPlayer.Character.HumanoidRootPart
+        local eventPos = eventModel:GetPivot().Position
+        
+        -- Teleport 10 stud di atas posisi event
+        hrp.CFrame = CFrame.new(eventPos + Vector3.new(0, 10, 0))
+        
+        NotifySuccess("Teleport Berhasil", "Berhasil teleport ke Event '" .. eventModelName .. "'!")
+        return true
+    else
+        NotifyError("Event Tidak Ditemukan", "Event '" .. eventModelName .. "' saat ini tidak aktif atau modelnya tidak ditemukan.")
+        return false
+    end
+end
+
 EventsTab:CreateButton({
-Name = "Teleport to Event",
-Description = "Teleports you to the selected event location.",
+Name = "Teleport Manual",
+Description = "Teleport ke lokasi event yang dipilih secara manual.",
 Callback = function()
-if not LocalPlayer.Character or not LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-Rayfield:Notify({
-Title = "Error",
-Content = "Character not found. Please try again.",
-Duration = 5,
-Image = "x"
+    teleportToEvent(selectedEvent)
+end
 })
-return
-end
 
-local destination = nil
-local eventName = selectedEvent
-
-if eventName == "Megalodon Event" then
--- Koordinat baru untuk Megalodon Hunt
-destination = CFrame.new(1234, 567, 890) 
-elseif eventName == "Golden Fish Event" then
--- Koordinat yang benar untuk Golden Fish Event
-destination = CFrame.new(987, 654, 321)
-elseif eventName == "Rainbow Fish Event" then
--- Koordinat yang benar untuk Rainbow Fish Event
-destination = CFrame.new(111, 222, 333)
-end
-
-if destination then
--- Hancurkan papan sebelumnya jika ada
-if teleportPlatform and teleportPlatform.Parent then
-teleportPlatform:Destroy()
-end
-
-LocalPlayer.Character.HumanoidRootPart.CFrame = destination
-
--- Gunakan Raycast untuk menemukan permukaan di bawah
-local origin = destination.Position
-local direction = Vector3.new(0, -500, 0) -- Tembak ke bawah sejauh 500 stud
-local raycastParams = RaycastParams.new()
-raycastParams.FilterDescendantsInstances = {LocalPlayer.Character}
-raycastParams.FilterType = Enum.RaycastFilterType.Exclude
-
-local result = Workspace:Raycast(origin, direction, raycastParams)
-
-local platformPosition
-if result then
--- Atur posisi papan tepat di atas permukaan yang terdeteksi
-platformPosition = result.Position + Vector3.new(0, 0.5, 0)
-else
--- Jika Raycast tidak mendeteksi apapun, gunakan posisi default yang rendah
-platformPosition = destination.Position + Vector3.new(0, -5, 0)
-end
-
--- Buat papan transparan
-teleportPlatform = Instance.new("Part")
-teleportPlatform.Name = "TemporaryTeleportPlatform"
-teleportPlatform.Size = Vector3.new(20, 1, 20)
-teleportPlatform.CFrame = CFrame.new(platformPosition)
-teleportPlatform.Transparency = 1
-teleportPlatform.CanCollide = true
-teleportPlatform.Anchored = true
-teleportPlatform.Parent = Workspace
-
--- Loop untuk menghancurkan papan ketika player bergerak menjauh
-task.spawn(function()
-local initialPosition = LocalPlayer.Character.HumanoidRootPart.Position
-while wait(0.5) and teleportPlatform and teleportPlatform.Parent do
-local currentPosition = LocalPlayer.Character.HumanoidRootPart.Position
-if (currentPosition - initialPosition).Magnitude > 50 then
-teleportPlatform:Destroy()
-teleportPlatform = nil
-break
-end
-end
-end)
-
-Rayfield:Notify({
-Title = "Success!",
-Content = "Teleported to " .. eventName,
-Duration = 5,
-Image = "circle-check"
-})
-else
-Rayfield:Notify({
-Title = "Error",
-Content = "Event location not defined.",
-Duration = 5,
-Image = "x"
-})
-end
-end
+EventsTab:CreateToggle({
+    Name = "Auto Teleport to Event",
+    Description = "Otomatis teleport ke event yang dipilih saat aktif.",
+    CurrentValue = false,
+    Flag = "AutoTeleportEvent",
+    Callback = function(value)
+        autoTeleportEvent = value
+        if value then
+            NotifySuccess("Auto Teleport Aktif", "Skrip akan mencari event dan teleport otomatis.")
+            task.spawn(function()
+                while autoTeleportEvent do
+                    teleportToEvent(selectedEvent)
+                    task.wait(5) -- Cek setiap 5 detik
+                end
+            end)
+        else
+            NotifyError("Auto Teleport Nonaktif", "Fitur auto teleport telah dimatikan.")
+        end
+    end
 })
 
 -- ====================================================================
