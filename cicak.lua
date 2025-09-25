@@ -6,6 +6,7 @@ local LocalPlayer = Players.LocalPlayer
 local UserInputService = game:GetService("UserInputService")
 local HttpService = game:GetService("HttpService")
 local TeleportService = game:GetService("TeleportService")
+local Lighting = game:GetService("Lighting")
 
 -- Load Rayfield
 local Rayfield = loadstring(game:HttpGet("https://raw.githubusercontent.com/SiriusSoftwareLtd/Rayfield/main/source.lua"))()
@@ -27,7 +28,7 @@ KeySystem = false
 -- Tabs
 local DevTab = Window:CreateTab("Developer", "airplay")
 local MainTab = Window:CreateTab("Auto Fish", "fish")
-local AutoSellFavoriteTab = Window:CreateTab("Auto Sell & Favorite", "star") -- Tab baru untuk Auto Sell & Favorite
+local AutoSellFavoriteTab = Window:CreateTab("Auto Sell & Favorite", "star") 
 local PlayerTab = Window:CreateTab("Player", "users-round")
 local IslandsTab = Window:CreateTab("Islands", "map")
 local EventsTab = Window:CreateTab("Events", "alarm-clock")
@@ -750,6 +751,44 @@ end
 end 
 
 -- Settings Tab
+SettingsTab:CreateSection("Performance & Settings")
+
+local function setGraphics(enabled)
+    if enabled then
+        settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+        Lighting.GlobalShadows = false
+        Lighting.FogEnd = 9e9
+        Lighting.Brightness = 0
+        Lighting.OutdoorAmbient = Color3.new(0,0,0)
+        Lighting.Ambient = Color3.new(0,0,0)
+        Lighting.Technology = Enum.Technology.Compatibility
+    else
+        settings().Rendering.QualityLevel = Enum.QualityLevel.Automatic
+        Lighting.GlobalShadows = true
+        Lighting.FogEnd = 50000
+        Lighting.Brightness = 2
+        Lighting.OutdoorAmbient = Color3.new(0.5, 0.5, 0.5)
+        Lighting.Ambient = Color3.new(0.5, 0.5, 0.5)
+        Lighting.Technology = Enum.Technology.ShadowMap
+    end
+end
+
+SettingsTab:CreateToggle({
+Name = "🚀 FPS Booster",
+Description = "Mengurangi kualitas grafis untuk meningkatkan FPS.",
+CurrentValue = false,
+Flag = "FPSBooster",
+Callback = function(value)
+    if value then
+        setGraphics(true)
+        NotifySuccess("FPS Booster", "FPS Booster diaktifkan!")
+    else
+        setGraphics(false)
+        NotifySuccess("FPS Booster", "FPS Booster dinonaktifkan!")
+    end
+end
+})
+
 SettingsTab:CreateButton({ Name = "Rejoin Server", Callback = function() TeleportService:Teleport(game.PlaceId, LocalPlayer) end })
 SettingsTab:CreateButton({ Name = "Server Hop (New Server)", Callback = function()
 local placeId = game.PlaceId
