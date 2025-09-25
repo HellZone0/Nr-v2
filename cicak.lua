@@ -15,7 +15,7 @@ local Window = Rayfield:CreateWindow({
 Name = "Fish It Script | HellZone",
 LoadingTitle = "Fish It",
 LoadingSubtitle = "by @HellZone",
-    Theme = "Amethyst",
+    Theme = "Blue",
 ConfigurationSaving = {
 Enabled = true,
 FolderName = "HellZone",
@@ -92,29 +92,29 @@ end
 
 LocalPlayer.Character.HumanoidRootPart.CFrame = destination
 
--- Gunakan Raycast untuk menemukan permukaan di bawah
-local origin = destination.Position
-local direction = Vector3.new(0, -500, 0) -- Tembak ke bawah sejauh 500 stud
-local raycastParams = RaycastParams.new()
-raycastParams.FilterDescendantsInstances = {LocalPlayer.Character}
-raycastParams.FilterType = Enum.RaycastFilterType.Exclude
+            -- Gunakan Raycast untuk menemukan permukaan di bawah
+            local origin = destination.Position
+            local direction = Vector3.new(0, -500, 0) -- Tembak ke bawah sejauh 500 stud
+            local raycastParams = RaycastParams.new()
+            raycastParams.FilterDescendantsInstances = {LocalPlayer.Character}
+            raycastParams.FilterType = Enum.RaycastFilterType.Exclude
 
-local result = Workspace:Raycast(origin, direction, raycastParams)
+            local result = Workspace:Raycast(origin, direction, raycastParams)
 
-local platformPosition
-if result then
--- Atur posisi papan tepat di atas permukaan yang terdeteksi
-platformPosition = result.Position + Vector3.new(0, 0.5, 0)
-else
--- Jika Raycast tidak mendeteksi apapun, gunakan posisi default yang rendah
-platformPosition = destination.Position + Vector3.new(0, -5, 0)
-end
+            local platformPosition
+            if result then
+                -- Atur posisi papan tepat di atas permukaan yang terdeteksi
+                platformPosition = result.Position + Vector3.new(0, 0.5, 0)
+            else
+                -- Jika Raycast tidak mendeteksi apapun, gunakan posisi default yang rendah
+                platformPosition = destination.Position + Vector3.new(0, -5, 0)
+            end
 
 -- Buat papan transparan
 teleportPlatform = Instance.new("Part")
 teleportPlatform.Name = "TemporaryTeleportPlatform"
 teleportPlatform.Size = Vector3.new(20, 1, 20)
-teleportPlatform.CFrame = CFrame.new(platformPosition)
+            teleportPlatform.CFrame = CFrame.new(platformPosition)
 teleportPlatform.Transparency = 1
 teleportPlatform.CanCollide = true
 teleportPlatform.Anchored = true
@@ -125,7 +125,7 @@ task.spawn(function()
 local initialPosition = LocalPlayer.Character.HumanoidRootPart.Position
 while wait(0.5) and teleportPlatform and teleportPlatform.Parent do
 local currentPosition = LocalPlayer.Character.HumanoidRootPart.Position
-if (currentPosition - initialPosition).Magnitude > 50 then
+                    if (currentPosition - initialPosition).Magnitude > 50 then
 teleportPlatform:Destroy()
 teleportPlatform = nil
 break
@@ -637,7 +637,7 @@ local islandCoords = {
 ["10"] = { name = "Isoteric Island", position = Vector3.new(1987, 4, 1400) },
 ["11"] = { name = "Lost Isle", position = Vector3.new(-3670.30078125, -113.00000762939453, -1128.0589599609375)},
 ["12"] = { name = "Lost Isle [Lost Shore]", position = Vector3.new(-3697, 97, -932)},
-["13"] = { name = "Lost Isle [Sisyphus]", position = Vector3.new(-3719.850830078125, -113.00000762939453, -958.6303100585938)},
+    ["13"] = { name = "Lost Isle [Sisyphus]", position = Vector3.new(-3719.850830078125, -113.00000762939453, -958.6303100585938)},
 ["14"] = { name = "Lost Isle [Treasure Hall]", position = Vector3.new(-3652, -298.25, -1469)},
 ["15"] = { name = "Lost Isle [Treasure Room]", position = Vector3.new(-3652, -283.5, -1651.5)}
 }
