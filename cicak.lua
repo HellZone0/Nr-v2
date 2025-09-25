@@ -65,6 +65,9 @@ local favoriteRarities = {
     Epic = false
 }
 
+-- State for Anti-AFK
+local antiAfkEnabled = false
+
 local function NotifySuccess(title, message)
 Rayfield:Notify({ Title = title, Content = message, Duration = 3, Image = "circle-check" })
 end
@@ -550,6 +553,43 @@ Content = value and "Remote blocked!" or "Remote allowed!",
 Duration = 3,
 })
 end,
+})
+
+-- Anti-AFK Feature
+PlayerTab:CreateToggle({
+Name = "Anti-AFK",
+CurrentValue = false,
+Flag = "Anti-AFK",
+Callback = function(value)
+    antiAfkEnabled = value
+    if value then
+        NotifySuccess("Anti-AFK Aktif", "Karakter akan bergerak sedikit untuk menghindari kick.")
+        task.spawn(function()
+            while antiAfkEnabled do
+                local char = LocalPlayer.Character
+                local hum = char and char:FindFirstChildOfClass("Humanoid")
+                if hum then
+                    local currentPos = char:GetPivot().Position
+                    local targetPos = currentPos + Vector3.new(0.5, 0, 0)
+                    hum:MoveTo(targetPos)
+                end
+                task.wait(5) -- Tunggu 5 detik
+                if antiAfkEnabled then
+                    local char = LocalPlayer.Character
+                    local hum = char and char:FindFirstChildOfClass("Humanoid")
+                    if hum then
+                        local currentPos = char:GetPivot().Position
+                        local targetPos = currentPos + Vector3.new(-0.5, 0, 0)
+                        hum:MoveTo(targetPos)
+                    end
+                    task.wait(5)
+                end
+            end
+        end)
+    else
+        NotifyError("Anti-AFK Nonaktif", "Fitur anti-AFK telah dimatikan.")
+    end
+end
 })
 
 -- Hook FireServer
