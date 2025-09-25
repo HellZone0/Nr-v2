@@ -6,9 +6,46 @@ local LocalPlayer = Players.LocalPlayer
 local UserInputService = game:GetService("UserInputService")
 local HttpService = game:GetService("HttpService")
 local TeleportService = game:GetService("TeleportService")
+local Lighting = game:GetService("Lighting")
 
 -- Load Rayfield
 local Rayfield = loadstring(game:HttpGet("https://raw.githubusercontent.com/SiriusSoftwareLtd/Rayfield/main/source.lua"))()
+
+-- ====== AUTOMATIC PERFORMANCE OPTIMIZATION ======
+local function ultimatePerformance()
+    local lighting = game:GetService("Lighting")
+    local workspace = game:GetService("Workspace")
+    pcall(function()
+        local terrain = workspace:FindFirstChild("Terrain")
+        if terrain then
+            if terrain:FindFirstChild("Clouds") then terrain.Clouds:Destroy() end
+            terrain.WaterWaveSize = 0
+            terrain.WaterWaveSpeed = 0
+            terrain.WaterReflectance = 0
+            terrain.WaterTransparency = 0
+        end
+        lighting.GlobalShadows = false
+        lighting.FogEnd = 9e9
+        lighting.Brightness = 2
+    end)
+end
+
+local function resetPerformance()
+    local lighting = game:GetService("Lighting")
+    local workspace = game:GetService("Workspace")
+    pcall(function()
+        local terrain = workspace:FindFirstChild("Terrain")
+        if terrain then
+            terrain.WaterWaveSize = 0.5
+            terrain.WaterWaveSpeed = 0.5
+            terrain.WaterReflectance = 0.1
+            terrain.WaterTransparency = 0.5
+        end
+        lighting.GlobalShadows = true
+        lighting.FogEnd = 0
+        lighting.Brightness = 2
+    end)
+end
 
 -- Window
 local Window = Rayfield:CreateWindow({
@@ -75,7 +112,7 @@ EventsTab:CreateButton({
 
         if eventName == "Megalodon Event" then
             -- Ganti koordinat ini dengan lokasi event Megalodon di game
-            destination = CFrame.new(1234, 567, 890) 
+            destination = CFrame.new(1234, 567, 890)
         elseif eventName == "Golden Fish Event" then
             -- Ganti koordinat ini dengan lokasi event Golden Fish
             destination = CFrame.new(987, 654, 321)
@@ -123,7 +160,7 @@ EventsTab:CreateButton({
             -- Loop untuk menghancurkan papan ketika player bergerak menjauh
             task.spawn(function()
                 local initialPosition = LocalPlayer.Character.HumanoidRootPart.Position
-                while wait(0.5) and teleportPlatform and teleportPlatform.Parent do
+                while task.wait(0.5) and teleportPlatform and teleportPlatform.Parent do
                     local currentPosition = LocalPlayer.Character.HumanoidRootPart.Position
                     if (currentPosition - initialPosition).Magnitude > 50 then
                         teleportPlatform:Destroy()
@@ -157,7 +194,7 @@ EventsTab:CreateButton({
 -- Remotes
 local net = ReplicatedStorage:WaitForChild("Packages"):WaitForChild("_Index"):WaitForChild("sleitnick_net@0.2.0"):WaitForChild("net")
 local rodRemote = net:WaitForChild("RF/ChargeFishingRod")
-local miniGameRemote = net:WaitForChild("RF/RequestFishingMinigameStarted")
+local miniGameRemote = net:WaitForChild("RE/RequestFishingMinigameStarted")
 local finishRemote = net:WaitForChild("RE/FishingCompleted")
 local equipRemote = net:WaitForChild("RE/EquipToolFromHotbar")
 
@@ -221,9 +258,9 @@ for _, boat in ipairs(standard_boats) do
         Name = "🛥️ " .. boat.Name,
         Callback = function()
             pcall(function()
-                replicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/DespawnBoat"]:InvokeServer()
+                ReplicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/DespawnBoat"]:InvokeServer()
                 task.wait(3)
-                replicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/SpawnBoat"]:InvokeServer(boat.ID)
+                ReplicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/SpawnBoat"]:InvokeServer(boat.ID)
                 Rayfield:Notify({
                     Title = "🚤 Spawning Boat",
                     Content = "Replacing with " .. boat.Name .. "\n" .. boat.Desc,
@@ -253,9 +290,9 @@ for _, boat in ipairs(other_boats) do
         Name = "🛶 " .. boat.Name,
         Callback = function()
             pcall(function()
-                replicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/DespawnBoat"]:InvokeServer()
+                ReplicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/DespawnBoat"]:InvokeServer()
                 task.wait(3)
-                replicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/SpawnBoat"]:InvokeServer(boat.ID)
+                ReplicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/SpawnBoat"]:InvokeServer(boat.ID)
                 Rayfield:Notify({
                     Title = "⛵ Spawning Boat",
                     Content = "Replacing with " .. boat.Name,
@@ -338,7 +375,7 @@ for _, rod in ipairs(rods) do
         Name = rod.Name .. " (" .. rod.Price .. ")",
         Callback = function()
             pcall(function()
-                replicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/PurchaseFishingRod"]:InvokeServer(rod.ID)
+                ReplicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/PurchaseFishingRod"]:InvokeServer(rod.ID)
                 Rayfield:Notify({
                     Title = "🎣 Purchase Rod",
                     Content = "Buying " .. rod.Name,
@@ -373,7 +410,7 @@ Buy_Weather:CreateToggle({
                 while autoBuyWeather do
                     for _, w in ipairs(weathers) do
                         pcall(function()
-                            replicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/PurchaseWeatherEvent"]:InvokeServer(w.Name)
+                            ReplicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/PurchaseWeatherEvent"]:InvokeServer(w.Name)
                             
                         end)
                         task.wait(1.5) -- jeda antar pembelian
@@ -403,7 +440,7 @@ for _, w in ipairs(weathers) do
         Name = w.Name .. " (" .. w.Price .. ")",
         Callback = function()
             pcall(function()
-                replicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/PurchaseWeatherEvent"]:InvokeServer(w.Name)
+                ReplicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/PurchaseWeatherEvent"]:InvokeServer(w.Name)
                 Rayfield:Notify({
                     Title = "⛅ Weather Event",
                     Content = "Triggering " .. w.Name,
@@ -434,7 +471,7 @@ for _, bait in ipairs(baits) do
         Name = bait.Name .. " (" .. bait.Price .. ")",
         Callback = function()
             pcall(function()
-                replicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/PurchaseBait"]:InvokeServer(bait.ID)
+                ReplicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/PurchaseBait"]:InvokeServer(bait.ID)
                 Rayfield:Notify({
                     Title = "🪱 Bait Purchase",
                     Content = "Buying " .. bait.Name,
@@ -453,11 +490,11 @@ local AutoSellToggle = MainTab:CreateToggle({
         featureState.AutoSell = value
         if value then
             task.spawn(function()
-                while featureState.AutoSell and player do
+                while featureState.AutoSell and LocalPlayer do
                     pcall(function()
-                        if not (player.Character and player.Character:FindFirstChild("HumanoidRootPart")) then return end
+                        if not (LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")) then return end
 
-                        local npcContainer = replicatedStorage:FindFirstChild("NPC")
+                        local npcContainer = ReplicatedStorage:FindFirstChild("NPC")
                         local alexNpc = npcContainer and npcContainer:FindFirstChild("Alex")
 
                         if not alexNpc then
@@ -472,16 +509,16 @@ local AutoSellToggle = MainTab:CreateToggle({
                             return
                         end
 
-                        local originalCFrame = player.Character.HumanoidRootPart.CFrame
+                        local originalCFrame = LocalPlayer.Character.HumanoidRootPart.CFrame
                         local npcPosition = alexNpc.WorldPivot.Position
 
-                        player.Character.HumanoidRootPart.CFrame = CFrame.new(npcPosition)
+                        LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(npcPosition)
                         task.wait(1)
 
-                        replicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/SellAllItems"]:InvokeServer()
+                        ReplicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/SellAllItems"]:InvokeServer()
                         task.wait(1)
 
-                        player.Character.HumanoidRootPart.CFrame = originalCFrame
+                        LocalPlayer.Character.HumanoidRootPart.CFrame = originalCFrame
                     end)
                     task.wait(20)
                 end
@@ -520,6 +557,33 @@ oldNamecall = hookmetamethod(game, "__namecall", newcclosure(function(self, ...)
 
     return oldNamecall(self, unpack(args))
 end))
+
+-- Tambahkan tombol untuk mendapatkan koordinat di sini
+PlayerTab:CreateButton({
+    Name = "Tampilkan Koordinat Saat Ini",
+    Description = "Menampilkan koordinat posisi Anda saat ini dalam notifikasi.",
+    Callback = function()
+        local player = game.Players.LocalPlayer
+        local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            local pos = hrp.Position
+            local coordString = string.format("X: %.2f, Y: %.2f, Z: %.2f", pos.X, pos.Y, pos.Z)
+            Rayfield:Notify({
+                Title = "Koordinat Saat Ini",
+                Content = coordString,
+                Duration = 5,
+                Image = "map-pin"
+            })
+        else
+            Rayfield:Notify({
+                Title = "Error",
+                Content = "Tidak dapat menemukan karakter Anda.",
+                Duration = 5,
+                Image = "x"
+            })
+        end
+    end
+})
 
 -- Player Tab
 PlayerTab:CreateToggle({
@@ -576,7 +640,7 @@ do
     PlayerTab:CreateButton({
         Name = "Weather Machine",
         Callback = function()
-            local weather = workspace:FindFirstChild("!!!! ISLAND LOCATIONS !!!!"):FindFirstChild("Weather Machine")
+            local weather = Workspace:FindFirstChild("!!!! ISLAND LOCATIONS !!!!"):FindFirstChild("Weather Machine")
             local char = game:GetService("Players").LocalPlayer.Character
             if weather and char and char:FindFirstChild("HumanoidRootPart") then
                 char:PivotTo(CFrame.new(weather.Position))
@@ -656,9 +720,35 @@ for _, data in pairs(islandCoords) do
             end
         end
     })
-end 
+end
 
 -- Settings Tab
+SettingsTab:CreateSection("Performance")
+SettingsTab:CreateToggle({
+    Name = "⚡ Aktifkan FPS Boost",
+    Description = "Menghilangkan efek visual untuk meningkatkan frame rate.",
+    CurrentValue = false,
+    Callback = function(val)
+        if val then
+            ultimatePerformance()
+            Rayfield:Notify({
+                Title = "FPS Boost",
+                Content = "FPS Boost diaktifkan!",
+                Duration = 3,
+                Image = "cpu"
+            })
+        else
+            resetPerformance()
+            Rayfield:Notify({
+                Title = "FPS Boost",
+                Content = "FPS Boost dinonaktifkan.",
+                Duration = 3,
+                Image = "cpu-off"
+            })
+        end
+    end
+})
+
 SettingsTab:CreateButton({ Name = "Rejoin Server", Callback = function() TeleportService:Teleport(game.PlaceId, LocalPlayer) end })
 SettingsTab:CreateButton({ Name = "Server Hop (New Server)", Callback = function()
     local placeId = game.PlaceId
@@ -689,7 +779,7 @@ SettingsTab:CreateButton({ Name = "Server Hop (New Server)", Callback = function
 end })
 SettingsTab:CreateButton({ Name = "Unload Script", Callback = function()
     Rayfield:Notify({ Title = "Script Unloaded", Content = "The script will now unload.", Duration = 3, Image = "circle-check" })
-    wait(3)
+    task.wait(3)
     game:GetService("CoreGui").Rayfield:Destroy()
 end })
 
