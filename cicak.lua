@@ -1,4 +1,3 @@
-
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -7,12 +6,6 @@ local LocalPlayer = Players.LocalPlayer
 local UserInputService = game:GetService("UserInputService")
 local HttpService = game:GetService("HttpService")
 local TeleportService = game:GetService("TeleportService")
-
---- HyRexxyy add new feature and variable
-local Players = game:GetService("Players")
-local replicatedStorage = game:GetService("ReplicatedStorage")
-local player = Players.LocalPlayer
-if not player or not replicatedStorage then return end
 
 -- Load Rayfield
 local Rayfield = loadstring(game:HttpGet("https://raw.githubusercontent.com/SiriusSoftwareLtd/Rayfield/main/source.lua"))()
@@ -32,18 +25,86 @@ local Window = Rayfield:CreateWindow({
 })
 
 -- Tabs
-
 local DevTab = Window:CreateTab("Developer", "airplay")
 local MainTab = Window:CreateTab("Auto Fish", "fish")
 local PlayerTab = Window:CreateTab("Player", "users-round")
 local IslandsTab = Window:CreateTab("Islands", "map")
-local EventTab = Window:CreateTab("Event", "cog")
+local EventsTab = Window:CreateTab("Events", "alarm-clock")
 local Spawn_Boat = Window:CreateTab("Spawn Boat", "cog")
 local Buy_Weather = Window:CreateTab("Buy Weather", "cog")
 local Buy_Rod = Window:CreateTab("Buy Rod", "cog")
 local Buy_Baits = Window:CreateTab("Buy Bait", "cog")
 local SettingsTab = Window:CreateTab("Settings", "cog")
 
+-- ====================================================================
+--                      KODE UNTUK FITUR EVENT (Sudah Diperbaiki)
+-- ====================================================================
+
+local selectedEvent = "Megalodon Event" -- Nilai default
+
+EventsTab:CreateSection("Teleport to Event")
+
+EventsTab:CreateDropdown({
+    Name = "Select Event",
+    Description = "Choose the event to teleport to.",
+    Options = { "Megalodon Event", "Golden Fish Event", "Rainbow Fish Event" }, -- Tambahkan event lain di sini
+    CurrentOption = "Megalodon Event",
+    Flag = "EventDropdown",
+    Callback = function(option)
+        selectedEvent = option
+    end
+})
+
+EventsTab:CreateButton({
+    Name = "Teleport to Event",
+    Description = "Teleports you to the selected event location.",
+    Callback = function()
+        if not LocalPlayer.Character or not LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            Rayfield:Notify({
+                Title = "Error",
+                Content = "Character not found. Please try again.",
+                Duration = 5,
+                Image = "x"
+            })
+            return
+        end
+
+        local destination = nil
+        local eventName = selectedEvent
+
+        if eventName == "Megalodon Event" then
+            -- Ganti koordinat ini dengan lokasi event Megalodon di game
+            destination = CFrame.new(1234, 567, 890) 
+        elseif eventName == "Golden Fish Event" then
+            -- Ganti koordinat ini dengan lokasi event Golden Fish
+            destination = CFrame.new(987, 654, 321)
+        elseif eventName == "Rainbow Fish Event" then
+            -- Ganti koordinat ini dengan lokasi event Rainbow Fish
+            destination = CFrame.new(111, 222, 333)
+        end
+
+        if destination then
+            LocalPlayer.Character.HumanoidRootPart.CFrame = destination
+            Rayfield:Notify({
+                Title = "Success!",
+                Content = "Teleported to " .. eventName,
+                Duration = 5,
+                Image = "circle-check"
+            })
+        else
+            Rayfield:Notify({
+                Title = "Error",
+                Content = "Event location not defined.",
+                Duration = 5,
+                Image = "x"
+            })
+        end
+    end
+})
+
+-- ====================================================================
+--                      AKHIR DARI KODE FITUR EVENT
+-- ====================================================================
 
 -- Remotes
 local net = ReplicatedStorage:WaitForChild("Packages"):WaitForChild("_Index"):WaitForChild("sleitnick_net@0.2.0"):WaitForChild("net")
@@ -157,7 +218,6 @@ for _, boat in ipairs(other_boats) do
         end
     })
 end
-
 
 MainTab:CreateToggle({
     Name = "🎣 Enable Auto Fishing",
@@ -306,9 +366,6 @@ for _, w in ipairs(weathers) do
     })
 end
 
-
-
-
 -- Buy Bait
 Buy_Baits:CreateParagraph({
     Title = "🪱 Purchase Baits",
@@ -425,8 +482,6 @@ PlayerTab:CreateToggle({
     end
 })
 
-
-
 UserInputService.JumpRequest:Connect(function()
     if ijump and LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid") then
         LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
@@ -495,8 +550,6 @@ do
     })
 end
 
-
-
 PlayerTab:CreateSlider({
     Name = "WalkSpeed",
     Range = {16, 150},
@@ -534,12 +587,11 @@ local islandCoords = {
     ["08"] = { name = "Kohana", position = Vector3.new(-658, 3, 719) },
     ["09"] = { name = "Winter Fest", position = Vector3.new(1611, 4, 3280) },
     ["10"] = { name = "Isoteric Island", position = Vector3.new(1987, 4, 1400) },
-["11"] = { name = "Lost Isle", position = Vector3.new(-3670.30078125, -113.00000762939453, -1128.0589599609375)},
-["12"] = { name = "Lost Isle [Lost Shore]", position = Vector3.new(-3697, 97, -932)},
-["13"] = { name = "Lost Isle [Sisyphus]", position = Vector3.new(-3719.850830078125, -113.00000762939453, -958.6303100585938)},
-
-["14"] = { name = "Lost Isle [Treasure Hall]", position = Vector3.new(-3652, -298.25, -1469)},
-["15"] = { name = "Lost Isle [Treasure Room]", position = Vector3.new(-3652, -283.5, -1651.5)}
+    ["11"] = { name = "Lost Isle", position = Vector3.new(-3670.30078125, -113.00000762939453, -1128.0589599609375)},
+    ["12"] = { name = "Lost Isle [Lost Shore]", position = Vector3.new(-3697, 97, -932)},
+    ["13"] = { name = "Lost Isle [Sisyphus]", position = Vector3.new(-3719.850830078125, -113.00000762939453, -958.6303100585938)},
+    ["14"] = { name = "Lost Isle [Treasure Hall]", position = Vector3.new(-3652, -298.25, -1469)},
+    ["15"] = { name = "Lost Isle [Treasure Room]", position = Vector3.new(-3652, -283.5, -1651.5)}
 }
 
 for _, data in pairs(islandCoords) do
@@ -557,129 +609,6 @@ for _, data in pairs(islandCoords) do
         end
     })
 end 
--- NPC Tab
-
-
-
-
--- 🔄 Ambil semua anak dari workspace.Props dan filter hanya yang berupa Model atau BasePart
-
-local function createEventButtons()
-    EventTab.Flags = {} -- Bersihkan flags lama agar tidak dobel
-    local props = Workspace:FindFirstChild("Props")
-    if props then
-        for _, child in pairs(props:GetChildren()) do
-            if child:IsA("Model") or child:IsA("BasePart") then
-                local eventName = child.Name
-
-                EventTab:CreateButton({
-                    Name = "Teleport to: " .. eventName,
-                    Callback = function()
-                        local character = Workspace.Characters:FindFirstChild(LocalPlayer.Name)
-                        local hrp = character and character:FindFirstChild("HumanoidRootPart")
-                        local pos = nil
-
-                        if child:IsA("Model") then
-                            if child.PrimaryPart then
-                                pos = child.PrimaryPart.Position
-                            else
-                                local part = child:FindFirstChildWhichIsA("BasePart")
-                                if part then
-                                    pos = part.Position
-                                end
-                            end
-                        elseif child:IsA("BasePart") then
-                            pos = child.Position
-                        end
-
-                        if pos and hrp then
-                            hrp.CFrame = CFrame.new(pos + Vector3.new(0, 5, 0)) -- Naik dikit biar gak stuck
-                            Rayfield:Notify({
-                                Title = "✅ Teleported",
-                                Content = "You have been teleported to: " .. eventName,
-                                Duration = 4
-                            })
-                        else
-                            Rayfield:Notify({
-                                Title = "❌ Teleport Failed",
-                                Content = "Failed to locate valid part for: " .. eventName,
-                                Duration = 4
-                            })
-                        end
-                    end
-                })
-            end
-        end
-    end
-end
-
--- Tombol untuk refresh list event
-EventTab:CreateButton({
-    Name = "🔄 Refresh Event List",
-    Callback = function()
-        createEventButtons()
-        Rayfield:Notify({
-            Title = "✅ Refreshed",
-            Content = "Event list has been refreshed.",
-            Duration = 3
-        })
-    end
-})
-
--- Panggil pertama kali saat tab dibuka
-createEventButtons()
-
-local props = Workspace:FindFirstChild("Props")
-if props then
-    for _, child in pairs(props:GetChildren()) do
-        if child:IsA("Model") or child:IsA("BasePart") then
-            local eventName = child.Name
-
-            EventTab:CreateButton({
-                Name = "Teleport to: " .. eventName,
-                Callback = function()
-                    local character = Workspace.Characters:FindFirstChild(LocalPlayer.Name)
-                    local hrp = character and character:FindFirstChild("HumanoidRootPart")
-                    local pos = nil
-
-                    if child:IsA("Model") then
-                        if child.PrimaryPart then
-                            pos = child.PrimaryPart.Position
-                        else
-                            local part = child:FindFirstChildWhichIsA("BasePart")
-                            if part then
-                                pos = part.Position
-                            end
-                        end
-                    elseif child:IsA("BasePart") then
-                        pos = child.Position
-                    end
-
-                    if pos and hrp then
-                        hrp.CFrame = CFrame.new(pos + Vector3.new(0, 5, 0)) -- Naik dikit biar gak stuck
-                        Rayfield:Notify({
-                            Title = "✅ Teleported",
-                            Content = "You have been teleported to: " .. eventName,
-                            Duration = 4
-                        })
-                    else
-                        Rayfield:Notify({
-                            Title = "❌ Teleport Failed",
-                            Content = "Failed to locate valid part for: " .. eventName,
-                            Duration = 4
-                        })
-                    end
-                end
-            })
-        end
-    end
-else
-    Rayfield:Notify({
-        Title = "Reloading Props Event",
-        Content = "workspace.Props tidak ditemukan!",
-        Duration = 1
-    })
-end
 
 -- Settings Tab
 SettingsTab:CreateButton({ Name = "Rejoin Server", Callback = function() TeleportService:Teleport(game.PlaceId, LocalPlayer) end })
