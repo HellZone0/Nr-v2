@@ -35,55 +35,111 @@ local Buy_Weather = Window:CreateTab("Buy Weather", "cog")
 local Buy_Rod = Window:CreateTab("Buy Rod", "cog")
 local Buy_Baits = Window:CreateTab("Buy Bait", "cog")
 local SettingsTab = Window:CreateTab("Settings", "cog")
+local AutoSellFavoriteTab = Window:CreateTab("Auto Sell & Favorite", "star") -- Tab baru untuk Auto Sell & Favorite
+
+-- Remotes
+local net = ReplicatedStorage:WaitForChild("Packages"):WaitForChild("_Index"):WaitForChild("sleitnick_net@0.2.0"):WaitForChild("net")
+local rodRemote = net:WaitForChild("RF/ChargeFishingRod")
+local miniGameRemote = net:WaitForChild("RE/FishingMinigameStarted")
+local finishRemote = net:WaitForChild("RE/FishingCompleted")
+local equipRemote = net:WaitForChild("RE/EquipToolFromHotbar")
+
+-- State
+local autofish = false
+local perfectCast = false
+local ijump = false
+local autoRecastDelay = 0.5
+local enchantPos = Vector3.new(3231, -1303, 1402)
+local featureState = {
+AutoSell = false,
+AutoFavorite = false
+}
+
+local function NotifySuccess(title, message)
+Rayfield:Notify({ Title = title, Content = message, Duration = 3, Image = "circle-check" })
+end
+
+local function NotifyError(title, message)
+Rayfield:Notify({ Title = title, Content = message, Duration = 3, Image = "ban" })
+end
 
 -- ====================================================================
 --                      FAVORITE FISH SECTION
 -- ====================================================================
 
-local favoriteFish = "" -- Variabel untuk menyimpan nama ikan favorit
+AutoSellFavoriteTab:CreateSection("Auto Sell & Favorite Settings")
 
-MainTab:CreateDropdown({
-    Name = "Select Favorite Fish",
-    Description = "Select a fish to be your favorite. This feature is not yet fully functional.",
-    Options = { "King Salmon", "Rainbow Trout", "Blue Fin Tuna", "Giant Squid" }, -- Ganti dengan nama ikan yang ingin Anda tambahkan
-    CurrentOption = "King Salmon",
-    Callback = function(option)
-        favoriteFish = option
-        Rayfield:Notify({
-            Title = "Favorite Fish Updated",
-            Content = "You have set your favorite fish to: " .. favoriteFish,
-            Duration = 5,
-            Image = "circle-check"
-        })
-    end
+AutoSellFavoriteTab:CreateToggle({
+Name = "🛒 Auto Sell (Teleport ke Alex)",
+CurrentValue = false,
+Flag = "AutoSell",
+Callback = function(value)
+featureState.AutoSell = value
+if value then
+task.spawn(function()
+while featureState.AutoSell and LocalPlayer do
+pcall(function()
+if not (LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")) then return end
+
+local npcContainer = ReplicatedStorage:FindFirstChild("NPC")
+local alexNpc = npcContainer and npcContainer:FindFirstChild("Alex")
+
+if not alexNpc then
+Rayfield:Notify({
+Title = "❌ Error",
+Content = "NPC 'Alex' tidak ditemukan!",
+Duration = 5,
+Image = 4483362458
+})
+featureState.AutoSell = false
+return
+end
+
+local originalCFrame = LocalPlayer.Character.HumanoidRootPart.CFrame
+local npcPosition = alexNpc.WorldPivot.Position
+
+LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(npcPosition)
+task.wait(1)
+
+net:WaitForChild("RF/SellAllItems"):InvokeServer()
+task.wait(1)
+
+LocalPlayer.Character.HumanoidRootPart.CFrame = originalCFrame
+end)
+task.wait(20)
+end
+end)
+end
+end
 })
 
-MainTab:CreateButton({
-    Name = "Show Favorite Fish",
-    Description = "Display your currently selected favorite fish.",
-    Callback = function()
-        if favoriteFish ~= "" then
-            Rayfield:Notify({
-                Title = "Current Favorite",
-                Content = "Your favorite fish is: " .. favoriteFish,
-                Duration = 5,
-                Image = "fish"
-            })
-        else
-            Rayfield:Notify({
-                Title = "No Favorite Selected",
-                Content = "Please select a fish from the dropdown first.",
-                Duration = 5,
-                Image = "x"
-            })
-        end
-    end
+AutoSellFavoriteTab:CreateToggle({
+Name = "⭐ Auto Favorite (HANYA UI)",
+CurrentValue = false,
+Flag = "AutoFavorite",
+Callback = function(value)
+featureState.AutoFavorite = value
+if value then
+Rayfield:Notify({
+Title = "Fitur Auto Favorite Diaktifkan",
+Content = "Fitur ini hanya akan berfungsi jika Anda memiliki 'remote' yang sesuai.",
+Duration = 5,
+Image = "circle-check"
+})
+else
+Rayfield:Notify({
+Title = "Fitur Auto Favorite Dinonaktifkan",
+Content = "Auto Favorite telah dimatikan.",
+Duration = 5,
+Image = "x"
+})
+end
+end
 })
 
 -- ====================================================================
---                      END OF FAVORITE FISH SECTION
+--                      END OF AUTO SELL & FAVORITE SECTION
 -- ====================================================================
-
 
 -- ====================================================================
 --                      KODE UNTUK FITUR EVENT (Sudah Diperbaiki)
@@ -95,140 +151,113 @@ local teleportPlatform = nil -- Variabel untuk menyimpan referensi papan transpa
 EventsTab:CreateSection("Teleport to Event")
 
 EventsTab:CreateDropdown({
-    Name = "Select Event",
-    Description = "Choose the event to teleport to.",
-    Options = { "Megalodon Event", "Worm Hunt Event", "Ghost Shark Hunt Event" },
-    CurrentOption = "Megalodon Event",
-    Flag = "EventDropdown",
-    Callback = function(option)
-        selectedEvent = option
-    end
+Name = "Select Event",
+Description = "Choose the event to teleport to.",
+Options = { "Megalodon Event", "Worm Hunt Event", "Ghost Shark Hunt Event" },
+CurrentOption = "Megalodon Event",
+Flag = "EventDropdown",
+Callback = function(option)
+selectedEvent = option
+end
 })
 
 EventsTab:CreateButton({
-    Name = "Teleport to Event",
-    Description = "Teleports you to the selected event location.",
-    Callback = function()
-        if not LocalPlayer.Character or not LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-            Rayfield:Notify({
-                Title = "Error",
-                Content = "Character not found. Please try again.",
-                Duration = 5,
-                Image = "x"
-            })
-            return
-        end
+Name = "Teleport to Event",
+Description = "Teleports you to the selected event location.",
+Callback = function()
+if not LocalPlayer.Character or not LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+Rayfield:Notify({
+Title = "Error",
+Content = "Character not found. Please try again.",
+Duration = 5,
+Image = "x"
+})
+return
+end
 
-        local destination = nil
-        local eventName = selectedEvent
+local destination = nil
+local eventName = selectedEvent
 
-        if eventName == "Megalodon Event" then
-            -- Koordinat baru untuk Megalodon Hunt
-            destination = CFrame.new(412.70, 9.45, 4134.39) 
-        elseif eventName == "Worm Hunt Event" then
-            -- Koordinat yang benar untuk Worm Hunt Event
-            destination = CFrame.new(1565.37, 4.88, -64.07)
-        elseif eventName == "Ghost Shark Hunt Event" then
-            -- Koordinat yang benar untuk Ghost Shark Hunt Event
-            destination = CFrame.new(636.70, 3.63, 38909.87)
-        end
+if eventName == "Megalodon Event" then
+-- Koordinat baru untuk Megalodon Hunt
+destination = CFrame.new(412.70, 9.45, 4134.39) 
+elseif eventName == "Worm Hunt Event" then
+-- Koordinat yang benar untuk Worm Hunt Event
+destination = CFrame.new(1565.37, 4.88, -64.07)
+elseif eventName == "Ghost Shark Hunt Event" then
+-- Koordinat yang benar untuk Ghost Shark Hunt Event
+destination = CFrame.new(636.70, 3.63, 38909.87)
+end
 
-        if destination then
-            -- Hancurkan papan sebelumnya jika ada
-            if teleportPlatform and teleportPlatform.Parent then
-                teleportPlatform:Destroy()
-            end
+if destination then
+-- Hancurkan papan sebelumnya jika ada
+if teleportPlatform and teleportPlatform.Parent then
+teleportPlatform:Destroy()
+end
 
-            LocalPlayer.Character.HumanoidRootPart.CFrame = destination
+LocalPlayer.Character.HumanoidRootPart.CFrame = destination
 
-            -- Gunakan Raycast untuk menemukan permukaan di bawah
-            local origin = destination.Position
-            local direction = Vector3.new(0, -500, 0) -- Tembak ke bawah sejauh 500 stud
-            local raycastParams = RaycastParams.new()
-            raycastParams.FilterDescendantsInstances = {LocalPlayer.Character}
-            raycastParams.FilterType = Enum.RaycastFilterType.Exclude
+-- Gunakan Raycast untuk menemukan permukaan di bawah
+local origin = destination.Position
+local direction = Vector3.new(0, -500, 0) -- Tembak ke bawah sejauh 500 stud
+local raycastParams = RaycastParams.new()
+raycastParams.FilterDescendantsInstances = {LocalPlayer.Character}
+raycastParams.FilterType = Enum.RaycastFilterType.Exclude
 
-            local result = Workspace:Raycast(origin, direction, raycastParams)
+local result = Workspace:Raycast(origin, direction, raycastParams)
 
-            local platformPosition
-            if result then
-                -- Atur posisi papan tepat di atas permukaan yang terdeteksi
-                platformPosition = result.Position + Vector3.new(0, 0.5, 0)
-            else
-                -- Jika Raycast tidak mendeteksi apapun, gunakan posisi default yang rendah
-                platformPosition = destination.Position + Vector3.new(0, -5, 0)
-            end
+local platformPosition
+if result then
+-- Atur posisi papan tepat di atas permukaan yang terdeteksi
+platformPosition = result.Position + Vector3.new(0, 0.5, 0)
+else
+-- Jika Raycast tidak mendeteksi apapun, gunakan posisi default yang rendah
+platformPosition = destination.Position + Vector3.new(0, -5, 0)
+end
 
-            -- Buat papan transparan
-            teleportPlatform = Instance.new("Part")
-            teleportPlatform.Name = "TemporaryTeleportPlatform"
-            teleportPlatform.Size = Vector3.new(20, 1, 20)
-            teleportPlatform.CFrame = CFrame.new(platformPosition)
-            teleportPlatform.Transparency = 1
-            teleportPlatform.CanCollide = true
-            teleportPlatform.Anchored = true
-            teleportPlatform.Parent = Workspace
+-- Buat papan transparan
+teleportPlatform = Instance.new("Part")
+teleportPlatform.Name = "TemporaryTeleportPlatform"
+teleportPlatform.Size = Vector3.new(20, 1, 20)
+teleportPlatform.CFrame = CFrame.new(platformPosition)
+teleportPlatform.Transparency = 1
+teleportPlatform.CanCollide = true
+teleportPlatform.Anchored = true
+teleportPlatform.Parent = Workspace
 
-            -- Loop untuk menghancurkan papan ketika player bergerak menjauh
-            task.spawn(function()
-                local initialPosition = LocalPlayer.Character.HumanoidRootPart.Position
-                while wait(0.5) and teleportPlatform and teleportPlatform.Parent do
-                    local currentPosition = LocalPlayer.Character.HumanoidRootPart.Position
-                    if (currentPosition - initialPosition).Magnitude > 50 then
-                        teleportPlatform:Destroy()
-                        teleportPlatform = nil
-                        break
-                    end
-                end
-            end)
+-- Loop untuk menghancurkan papan ketika player bergerak menjauh
+task.spawn(function()
+local initialPosition = LocalPlayer.Character.HumanoidRootPart.Position
+while wait(0.5) and teleportPlatform and teleportPlatform.Parent do
+local currentPosition = LocalPlayer.Character.HumanoidRootPart.Position
+if (currentPosition - initialPosition).Magnitude > 50 then
+teleportPlatform:Destroy()
+teleportPlatform = nil
+break
+end
+end
+end)
 
-            Rayfield:Notify({
-                Title = "Success!",
-                Content = "Teleported to " .. eventName,
-                Duration = 5,
-                Image = "circle-check"
-            })
-        else
-            Rayfield:Notify({
-                Title = "Error",
-                Content = "Event location not defined.",
-                Duration = 5,
-                Image = "x"
-            })
-        end
-    end
+Rayfield:Notify({
+Title = "Success!",
+Content = "Teleported to " .. eventName,
+Duration = 5,
+Image = "circle-check"
+})
+else
+Rayfield:Notify({
+Title = "Error",
+Content = "Event location not defined.",
+Duration = 5,
+Image = "x"
+})
+end
+end
 })
 
 -- ====================================================================
 --                      AKHIR DARI KODE FITUR EVENT
 -- ====================================================================
-
--- Remotes
-local net = ReplicatedStorage:WaitForChild("Packages"):WaitForChild("_Index"):WaitForChild("sleitnick_net@0.2.0"):WaitForChild("net")
-local rodRemote = net:WaitForChild("RF/ChargeFishingRod")
-local miniGameRemote = net:WaitForChild("RF/RequestFishingMinigameStarted")
-local finishRemote = net:WaitForChild("RE/FishingCompleted")
-local equipRemote = net:WaitForChild("RE/EquipToolFromHotbar")
-
--- State
-local AutoSell = false
-local autofish = false
-local perfectCast = false
-local ijump = false
-local autoRecastDelay = 0.5
-local enchantPos = Vector3.new(3231, -1303, 1402)
-
-local featureState = {
-AutoSell = false,
-}
-
-local function NotifySuccess(title, message)
-Rayfield:Notify({ Title = title, Content = message, Duration = 3, Image = "circle-check" })
-end
-
-local function NotifyError(title, message)
-Rayfield:Notify({ Title = title, Content = message, Duration = 3, Image = "ban" })
-end
 
 -- Developer Info
 DevTab:CreateParagraph({
@@ -270,9 +299,9 @@ Spawn_Boat:CreateButton({
 Name = "🛥️ " .. boat.Name,
 Callback = function()
 pcall(function()
-replicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/DespawnBoat"]:InvokeServer()
+ReplicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/DespawnBoat"]:InvokeServer()
 task.wait(3)
-replicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/SpawnBoat"]:InvokeServer(boat.ID)
+ReplicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/SpawnBoat"]:InvokeServer(boat.ID)
 Rayfield:Notify({
 Title = "🚤 Spawning Boat",
 Content = "Replacing with " .. boat.Name .. "\n" .. boat.Desc,
@@ -302,9 +331,9 @@ Spawn_Boat:CreateButton({
 Name = "🛶 " .. boat.Name,
 Callback = function()
 pcall(function()
-replicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/DespawnBoat"]:InvokeServer()
+ReplicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/DespawnBoat"]:InvokeServer()
 task.wait(3)
-replicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/SpawnBoat"]:InvokeServer(boat.ID)
+ReplicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/SpawnBoat"]:InvokeServer(boat.ID)
 Rayfield:Notify({
 Title = "⛵ Spawning Boat",
 Content = "Replacing with " .. boat.Name,
@@ -387,7 +416,7 @@ Buy_Rod:CreateButton({
 Name = rod.Name .. " (" .. rod.Price .. ")",
 Callback = function()
 pcall(function()
-replicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/PurchaseFishingRod"]:InvokeServer(rod.ID)
+ReplicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/PurchaseFishingRod"]:InvokeServer(rod.ID)
 Rayfield:Notify({
 Title = "🎣 Purchase Rod",
 Content = "Buying " .. rod.Name,
@@ -422,7 +451,7 @@ task.spawn(function()
 while autoBuyWeather do
 for _, w in ipairs(weathers) do
 pcall(function()
-replicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/PurchaseWeatherEvent"]:InvokeServer(w.Name)
+ReplicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/PurchaseWeatherEvent"]:InvokeServer(w.Name)
 
 end)
 task.wait(1.5) -- jeda antar pembelian
@@ -452,7 +481,7 @@ Buy_Weather:CreateButton({
 Name = w.Name .. " (" .. w.Price .. ")",
 Callback = function()
 pcall(function()
-replicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/PurchaseWeatherEvent"]:InvokeServer(w.Name)
+ReplicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/PurchaseWeatherEvent"]:InvokeServer(w.Name)
 Rayfield:Notify({
 Title = "⛅ Weather Event",
 Content = "Triggering " .. w.Name,
@@ -483,7 +512,7 @@ Buy_Baits:CreateButton({
 Name = bait.Name .. " (" .. bait.Price .. ")",
 Callback = function()
 pcall(function()
-replicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/PurchaseBait"]:InvokeServer(bait.ID)
+ReplicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/PurchaseBait"]:InvokeServer(bait.ID)
 Rayfield:Notify({
 Title = "🪱 Bait Purchase",
 Content = "Buying " .. bait.Name,
@@ -494,50 +523,6 @@ end
 })
 end
 
-local AutoSellToggle = MainTab:CreateToggle({
-Name = "🛒 Auto Sell (Teleport ke Alex)",
-CurrentValue = false,
-Flag = "AutoSell",
-Callback = function(value)
-featureState.AutoSell = value
-if value then
-task.spawn(function()
-while featureState.AutoSell and player do
-pcall(function()
-if not (player.Character and player.Character:FindFirstChild("HumanoidRootPart")) then return end
-
-local npcContainer = replicatedStorage:FindFirstChild("NPC")
-local alexNpc = npcContainer and npcContainer:FindFirstChild("Alex")
-
-if not alexNpc then
-Rayfield:Notify({
-Title = "❌ Error",
-Content = "NPC 'Alex' tidak ditemukan!",
-Duration = 5,
-Image = 4483362458
-})
-featureState.AutoSell = false
-AutoSellToggle:Set(false)
-return
-end
-
-local originalCFrame = player.Character.HumanoidRootPart.CFrame
-local npcPosition = alexNpc.WorldPivot.Position
-
-player.Character.HumanoidRootPart.CFrame = CFrame.new(npcPosition)
-task.wait(1)
-
-replicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/SellAllItems"]:InvokeServer()
-task.wait(1)
-
-player.Character.HumanoidRootPart.CFrame = originalCFrame
-end)
-task.wait(20)
-end
-end)
-end
-end
-})
 
 -- Toggle logic
 local blockUpdateOxygen = false
