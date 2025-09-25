@@ -37,61 +37,64 @@ local Buy_Baits = Window:CreateTab("Buy Bait", "cog")
 local SettingsTab = Window:CreateTab("Settings", "cog")
 
 -- ====================================================================
---                      KODE UNTUK FITUR EVENT
+--                      KODE UNTUK FITUR EVENT (Sudah Diperbaiki)
 -- ====================================================================
 
-local selectedEvent = "Megalodon Event"
-local teleportPlatform = nil
+local selectedEvent = "Megalodon Event" -- Nilai default
+local teleportPlatform = nil -- Variabel untuk menyimpan referensi papan transparan
 
 EventsTab:CreateSection("Teleport to Event")
 
 EventsTab:CreateDropdown({
-    Name = "Select Event",
-    Description = "Choose the event to teleport to.",
-    Options = { "Megalodon Event", "Golden Fish Event", "Rainbow Fish Event", "Ghost Shark Hunt" },
-    CurrentOption = "Megalodon Event",
-    Flag = "EventDropdown",
-    Callback = function(option)
-        selectedEvent = option
-    end
+Name = "Select Event",
+Description = "Choose the event to teleport to.",
+Options = { "Megalodon Event", "Golden Fish Event", "Rainbow Fish Event" },
+CurrentOption = "Megalodon Event",
+Flag = "EventDropdown",
+Callback = function(option)
+selectedEvent = option
+end
 })
 
 EventsTab:CreateButton({
-    Name = "Teleport to Event",
-    Description = "Teleports you to the selected event location.",
-    Callback = function()
-        if not LocalPlayer.Character or not LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-            Rayfield:Notify({
-                Title = "Error",
-                Content = "Character not found. Please try again.",
-                Duration = 5,
-                Image = "x"
-            })
-            return
-        end
+Name = "Teleport to Event",
+Description = "Teleports you to the selected event location.",
+Callback = function()
+if not LocalPlayer.Character or not LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+Rayfield:Notify({
+Title = "Error",
+Content = "Character not found. Please try again.",
+Duration = 5,
+Image = "x"
+})
+return
+end
 
-        local destination = nil
-        local eventName = selectedEvent
+local destination = nil
+local eventName = selectedEvent
 
-        if eventName == "Megalodon Event" then
-            destination = CFrame.new(1234, 567, 890)
-        elseif eventName == "Golden Fish Event" then
-            destination = CFrame.new(987, 654, 321)
-        elseif eventName == "Rainbow Fish Event" then
-            destination = CFrame.new(111, 222, 333)
-        elseif eventName == "Ghost Shark Hunt" then
-            destination = CFrame.new(636.70, 3.63, 38909.87)
-        end
+if eventName == "Megalodon Event" then
+-- Ganti koordinat ini dengan lokasi event Megalodon di game
+destination = CFrame.new(1234, 567, 890) 
+elseif eventName == "Golden Fish Event" then
+-- Ganti koordinat ini dengan lokasi event Golden Fish
+destination = CFrame.new(987, 654, 321)
+elseif eventName == "Rainbow Fish Event" then
+-- Ganti koordinat ini dengan lokasi event Rainbow Fish
+destination = CFrame.new(111, 222, 333)
+end
 
-        if destination then
-            if teleportPlatform and teleportPlatform.Parent then
-                teleportPlatform:Destroy()
-            end
+if destination then
+-- Hancurkan papan sebelumnya jika ada
+if teleportPlatform and teleportPlatform.Parent then
+teleportPlatform:Destroy()
+end
 
-            LocalPlayer.Character.HumanoidRootPart.CFrame = destination
+LocalPlayer.Character.HumanoidRootPart.CFrame = destination
 
+            -- Gunakan Raycast untuk menemukan permukaan di bawah
             local origin = destination.Position
-            local direction = Vector3.new(0, -500, 0)
+            local direction = Vector3.new(0, -500, 0) -- Tembak ke bawah sejauh 500 stud
             local raycastParams = RaycastParams.new()
             raycastParams.FilterDescendantsInstances = {LocalPlayer.Character}
             raycastParams.FilterType = Enum.RaycastFilterType.Exclude
@@ -100,47 +103,51 @@ EventsTab:CreateButton({
 
             local platformPosition
             if result then
+                -- Atur posisi papan tepat di atas permukaan yang terdeteksi
                 platformPosition = result.Position + Vector3.new(0, 0.5, 0)
             else
+                -- Jika Raycast tidak mendeteksi apapun, gunakan posisi default yang rendah
                 platformPosition = destination.Position + Vector3.new(0, -5, 0)
             end
 
-            teleportPlatform = Instance.new("Part")
-            teleportPlatform.Name = "TemporaryTeleportPlatform"
-            teleportPlatform.Size = Vector3.new(20, 1, 20)
+-- Buat papan transparan
+teleportPlatform = Instance.new("Part")
+teleportPlatform.Name = "TemporaryTeleportPlatform"
+teleportPlatform.Size = Vector3.new(20, 1, 20)
             teleportPlatform.CFrame = CFrame.new(platformPosition)
-            teleportPlatform.Transparency = 1
-            teleportPlatform.CanCollide = true
-            teleportPlatform.Anchored = true
-            teleportPlatform.Parent = Workspace
+teleportPlatform.Transparency = 1
+teleportPlatform.CanCollide = true
+teleportPlatform.Anchored = true
+teleportPlatform.Parent = Workspace
 
-            task.spawn(function()
-                local initialPosition = LocalPlayer.Character.HumanoidRootPart.Position
-                while task.wait(0.5) and teleportPlatform and teleportPlatform.Parent do
-                    local currentPosition = LocalPlayer.Character.HumanoidRootPart.Position
+-- Loop untuk menghancurkan papan ketika player bergerak menjauh
+task.spawn(function()
+local initialPosition = LocalPlayer.Character.HumanoidRootPart.Position
+while wait(0.5) and teleportPlatform and teleportPlatform.Parent do
+local currentPosition = LocalPlayer.Character.HumanoidRootPart.Position
                     if (currentPosition - initialPosition).Magnitude > 50 then
-                        teleportPlatform:Destroy()
-                        teleportPlatform = nil
-                        break
-                    end
-                end
-            end)
+teleportPlatform:Destroy()
+teleportPlatform = nil
+break
+end
+end
+end)
 
-            Rayfield:Notify({
-                Title = "Success!",
-                Content = "Teleported to " .. eventName,
-                Duration = 5,
-                Image = "circle-check"
-            })
-        else
-            Rayfield:Notify({
-                Title = "Error",
-                Content = "Event location not defined.",
-                Duration = 5,
-                Image = "x"
-            })
-        end
-    end
+Rayfield:Notify({
+Title = "Success!",
+Content = "Teleported to " .. eventName,
+Duration = 5,
+Image = "circle-check"
+})
+else
+Rayfield:Notify({
+Title = "Error",
+Content = "Event location not defined.",
+Duration = 5,
+Image = "x"
+})
+end
+end
 })
 
 -- ====================================================================
