@@ -27,6 +27,7 @@ KeySystem = false
 -- Tabs
 local DevTab = Window:CreateTab("Developer", "airplay")
 local MainTab = Window:CreateTab("Auto Fish", "fish")
+local AutoSellFavoriteTab = Window:CreateTab("Auto Sell & Favorite", "star") -- Tab baru untuk Auto Sell & Favorite
 local PlayerTab = Window:CreateTab("Player", "users-round")
 local IslandsTab = Window:CreateTab("Islands", "map")
 local EventsTab = Window:CreateTab("Events", "alarm-clock")
@@ -35,7 +36,7 @@ local Buy_Weather = Window:CreateTab("Buy Weather", "cog")
 local Buy_Rod = Window:CreateTab("Buy Rod", "cog")
 local Buy_Baits = Window:CreateTab("Buy Bait", "cog")
 local SettingsTab = Window:CreateTab("Settings", "cog")
-local AutoSellFavoriteTab = Window:CreateTab("Auto Sell & Favorite", "star") -- Tab baru untuk Auto Sell & Favorite
+
 
 -- Remotes
 local net = ReplicatedStorage:WaitForChild("Packages"):WaitForChild("_Index"):WaitForChild("sleitnick_net@0.2.0"):WaitForChild("net")
@@ -53,6 +54,14 @@ local enchantPos = Vector3.new(3231, -1303, 1402)
 local featureState = {
 AutoSell = false,
 AutoFavorite = false
+}
+
+-- New state for multi-favorite
+local favoriteRarities = {
+    Secret = false,
+    Mythic = false,
+    Legendary = false,
+    Epic = false
 }
 
 local function NotifySuccess(title, message)
@@ -113,30 +122,46 @@ end
 end
 })
 
-local selectedFavoriteFish = "Pilih Ikan"
-local fishOptions = {
-    "Pilih Ikan",
-    "Gura",
-    "Shark",
-    "Ghost Shark",
-    "Megalodon",
-    "Worm"
-}
-
-AutoSellFavoriteTab:CreateDropdown({
-    Name = "Pilih Ikan Favorit",
-    Description = "Pilih jenis ikan yang ingin difavoritkan.",
-    Options = fishOptions,
-    CurrentOption = "Pilih Ikan",
-    Flag = "FavoriteFishDropdown",
-    Callback = function(option)
-        selectedFavoriteFish = option
-        NotifySuccess("Ikan Dipilih", "Ikan favorit telah diatur ke " .. option)
+AutoSellFavoriteTab:CreateSection("⭐ Pilih Kelangkaan Favorit")
+AutoSellFavoriteTab:CreateToggle({
+    Name = "Secret",
+    CurrentValue = false,
+    Flag = "FavoriteSecret",
+    Callback = function(value)
+        favoriteRarities.Secret = value
+        NotifySuccess("Kelangkaan Dipilih", "Secret: " .. tostring(value))
+    end
+})
+AutoSellFavoriteTab:CreateToggle({
+    Name = "Mythic",
+    CurrentValue = false,
+    Flag = "FavoriteMythic",
+    Callback = function(value)
+        favoriteRarities.Mythic = value
+        NotifySuccess("Kelangkaan Dipilih", "Mythic: " .. tostring(value))
+    end
+})
+AutoSellFavoriteTab:CreateToggle({
+    Name = "Legendary",
+    CurrentValue = false,
+    Flag = "FavoriteLegendary",
+    Callback = function(value)
+        favoriteRarities.Legendary = value
+        NotifySuccess("Kelangkaan Dipilih", "Legendary: " .. tostring(value))
+    end
+})
+AutoSellFavoriteTab:CreateToggle({
+    Name = "Epic",
+    CurrentValue = false,
+    Flag = "FavoriteEpic",
+    Callback = function(value)
+        favoriteRarities.Epic = value
+        NotifySuccess("Kelangkaan Dipilih", "Epic: " .. tostring(value))
     end
 })
 
 AutoSellFavoriteTab:CreateToggle({
-Name = "⭐ Auto Favorite",
+Name = "⭐ Enable Auto Favorite",
 CurrentValue = false,
 Flag = "AutoFavorite",
 Callback = function(value)
@@ -150,13 +175,11 @@ Image = "circle-check"
 })
 task.spawn(function()
 while featureState.AutoFavorite do
-    if selectedFavoriteFish ~= "Pilih Ikan" then
-        -- Ini adalah placeholder.
-        -- Di sini Anda akan menambahkan logika untuk favorit
-        -- menggunakan 'remote' game jika Anda menemukannya.
-        -- Contoh: net:WaitForChild("RF/FavoriteFish"):InvokeServer(selectedFavoriteFish)
-        -- Tanpa remote ini, fitur tidak akan berfungsi.
-    end
+    -- Ini adalah placeholder.
+    -- Di sini Anda akan menambahkan logika untuk favorit
+    -- menggunakan 'remote' game jika Anda menemukannya.
+    -- Contoh: net:WaitForChild("RF/FavoriteFish"):InvokeServer(selectedFavoriteRarity)
+    -- Tanpa remote ini, fitur tidak akan berfungsi.
     task.wait(5)
 end
 end)
@@ -187,7 +210,7 @@ EventsTab:CreateSection("Teleport to Event")
 EventsTab:CreateDropdown({
 Name = "Select Event",
 Description = "Choose the event to teleport to.",
-Options = { "Megalodon Event", "Worm Hunt Event", "Ghost Shark Hunt Event" },
+Options = { "Megalodon Event", "Golden Fish Event", "Rainbow Fish Event" },
 CurrentOption = "Megalodon Event",
 Flag = "EventDropdown",
 Callback = function(option)
@@ -214,13 +237,13 @@ local eventName = selectedEvent
 
 if eventName == "Megalodon Event" then
 -- Koordinat baru untuk Megalodon Hunt
-destination = CFrame.new(412.70, 9.45, 4134.39) 
-elseif eventName == "Worm Hunt Event" then
--- Koordinat yang benar untuk Worm Hunt Event
-destination = CFrame.new(1565.37, 4.88, -64.07)
-elseif eventName == "Ghost Shark Hunt Event" then
--- Koordinat yang benar untuk Ghost Shark Hunt Event
-destination = CFrame.new(636.70, 3.63, 38909.87)
+destination = CFrame.new(1234, 567, 890) 
+elseif eventName == "Golden Fish Event" then
+-- Koordinat yang benar untuk Golden Fish Event
+destination = CFrame.new(987, 654, 321)
+elseif eventName == "Rainbow Fish Event" then
+-- Koordinat yang benar untuk Rainbow Fish Event
+destination = CFrame.new(111, 222, 333)
 end
 
 if destination then
@@ -703,7 +726,7 @@ local islandCoords = {
 ["08"] = { name = "Kohana", position = Vector3.new(-658, 3, 719) },
 ["09"] = { name = "Winter Fest", position = Vector3.new(1611, 4, 3280) },
 ["10"] = { name = "Isoteric Island", position = Vector3.new(1987, 4, 1400) },
-["11"] = { name = "Lost Isle", position = Vector3.new(-3670.30078125, -113.00000762939453, -1128.0589599609375)},
+["11"] = { name = "Lost Isle", position = Vector3.new(-3670.30078125, -113.00000762939453, -1128.058959375)},
 ["12"] = { name = "Lost Isle [Lost Shore]", position = Vector3.new(-3697, 97, -932)},
 ["13"] = { name = "Lost Isle [Sisyphus]", position = Vector3.new(-3719.850830078125, -113.00000762939453, -958.6303100585938)},
 ["14"] = { name = "Lost Isle [Treasure Hall]", position = Vector3.new(-3652, -298.25, -1469)},
