@@ -58,7 +58,12 @@ AutoFavorite = false
 }
 
 -- New state for multi-favorite
-local selectedRarity = "Secret" -- Nilai default
+local favoriteRarities = {
+    Secret = false,
+    Mythic = false,
+    Legendary = false,
+    Epic = false
+}
 
 -- State for Anti-AFK
 local antiAfkEnabled = false
@@ -148,9 +153,16 @@ local function startAutoFavourite()
 				local items = DataReplion and DataReplion:Get({"Inventory","Items"})
 				if type(items) ~= "table" then return end
 				
+				local allowedTiers = {}
+				for tier, isEnabled in pairs(favoriteRarities) do
+                    if isEnabled then
+                        allowedTiers[tier] = true
+                    end
+                end
+
 				for _, item in ipairs(items) do
 					local base = ItemUtility:GetItemData(item.Id)
-					if base and base.Data and base.Data.Tier == selectedRarity and not item.Favorited then
+					if base and base.Data and allowedTiers[base.Data.Tier] and not item.Favorited then
 						item.Favorited = true
 					end
 				end
@@ -160,18 +172,88 @@ local function startAutoFavourite()
 	end)
 end
 
-AutoSellFavoriteTab:CreateSection("⭐ Pilih Kelangkaan Favorit")
-AutoSellFavoriteTab:CreateDropdown({
-    Name = "Pilih Kelangkaan",
-    Description = "Pilih kelangkaan ikan yang ingin difavoritkan.",
-    Options = { "Secret", "Mythic", "Legendary", "Epic" },
-    CurrentOption = selectedRarity,
-    Flag = "AutoFavoriteRarity",
-    Callback = function(option)
-        selectedRarity = option
-        NotifySuccess("Kelangkaan Dipilih", "Ikan dengan kelangkaan " .. option .. " akan difavoritkan.")
+-- ====================================================================
+--  SOLUSI BARU: TOMBOL UNTUK MEMBUKA JENDELA POP-UP DENGAN TOGGLE
+-- ====================================================================
+local multiSelectWindow = nil
+local multiSelectButton = AutoSellFavoriteTab:CreateButton({
+    Name = "Pilih Kelangkaan Ikan",
+    Description = "Klik untuk memilih kelangkaan yang akan difavoritkan.",
+    Callback = function()
+        if multiSelectWindow and multiSelectWindow.Window then
+            multiSelectWindow.Window:Destroy()
+            multiSelectWindow = nil
+        end
+        
+        multiSelectWindow = Rayfield:CreateWindow({
+            Name = "Pilih Kelangkaan",
+            Title = "Pilih Kelangkaan Ikan",
+            Theme = "Dark",
+            Position = UDim2.new(0.5, 0, 0.5, 0), -- Tengah layar
+            Size = UDim2.new(0.2, 0, 0.4, 0),
+            ConfigurationSaving = false
+        })
+        
+        local function updateButtonName()
+            local count = 0
+            for _, isEnabled in pairs(favoriteRarities) do
+                if isEnabled then
+                    count = count + 1
+                end
+            end
+            if count > 0 then
+                multiSelectButton.Name = "Pilih Kelangkaan Ikan (" .. count .. " Dipilih)"
+            else
+                multiSelectButton.Name = "Pilih Kelangkaan Ikan"
+            end
+        end
+
+        multiSelectWindow:CreateToggle({
+            Name = "Secret",
+            CurrentValue = favoriteRarities.Secret,
+            Flag = "FavoriteSecret",
+            Callback = function(value)
+                favoriteRarities.Secret = value
+                NotifySuccess("Kelangkaan Dipilih", "Secret: " .. tostring(value))
+                updateButtonName()
+            end
+        })
+        multiSelectWindow:CreateToggle({
+            Name = "Mythic",
+            CurrentValue = favoriteRarities.Mythic,
+            Flag = "FavoriteMythic",
+            Callback = function(value)
+                favoriteRarities.Mythic = value
+                NotifySuccess("Kelangkaan Dipilih", "Mythic: " .. tostring(value))
+                updateButtonName()
+            end
+        })
+        multiSelectWindow:CreateToggle({
+            Name = "Legendary",
+            CurrentValue = favoriteRarities.Legendary,
+            Flag = "FavoriteLegendary",
+            Callback = function(value)
+                favoriteRarities.Legendary = value
+                NotifySuccess("Kelangkaan Dipilih", "Legendary: " .. tostring(value))
+                updateButtonName()
+            end
+        })
+        multiSelectWindow:CreateToggle({
+            Name = "Epic",
+            CurrentValue = favoriteRarities.Epic,
+            Flag = "FavoriteEpic",
+            Callback = function(value)
+                favoriteRarities.Epic = value
+                NotifySuccess("Kelangkaan Dipilih", "Epic: " .. tostring(value))
+                updateButtonName()
+            end
+        })
     end
 })
+-- ====================================================================
+--               AKHIR DARI SOLUSI BARU
+-- ====================================================================
+
 
 AutoSellFavoriteTab:CreateToggle({
 Name = "⭐ Enable Auto Favorite",
