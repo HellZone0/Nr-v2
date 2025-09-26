@@ -38,6 +38,7 @@ local Buy_Rod = Window:CreateTab("Buy Rod", "cog")
 local Buy_Baits = Window:CreateTab("Buy Bait", "cog")
 local SettingsTab = Window:CreateTab("Settings", "cog")
 
+
 -- Remotes
 local net = ReplicatedStorage:WaitForChild("Packages"):WaitForChild("_Index"):WaitForChild("sleitnick_net@0.2.0"):WaitForChild("net")
 local rodRemote = net:WaitForChild("RF/ChargeFishingRod")
@@ -536,6 +537,7 @@ end
 })
 end
 
+
 -- Toggle logic
 local blockUpdateOxygen = false
 
@@ -553,56 +555,30 @@ Duration = 3,
 end,
 })
 
----
--- Anti-AFK Section
-local AFKSection = PlayerTab:CreateSection({
-Title = "Anti-AFK System",
-Icon = "user-x"
-})
-
-AFKSection:CreateParagraph({
-Title = "AFK Prevention",
-Content = "Prevent being kicked for inactivity"
-})
-
-local AntiAFKEnabled = true
-local AFKConnection = nil
-
-AFKSection:CreateToggle({
-Title = "Anti-AFK",
-Content = "Prevent automatic disconnection",
-Value = true,
-Callback = function(Value)
-AntiAFKEnabled = Value
-if AntiAFKEnabled then
-if AFKConnection then
-AFKConnection:Disconnect()
+-- Anti-AFK Feature (Updated)
+PlayerTab:CreateToggle({
+Name = "Anti-AFK",
+CurrentValue = false,
+Flag = "Anti-AFK",
+Callback = function(value)
+antiAfkEnabled = value
+if value then
+NotifySuccess("Anti-AFK Aktif", "Mensimulasikan gerakan untuk menghindari kick.")
+task.spawn(function()
+while antiAfkEnabled do
+local hum = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+if hum then
+-- Mensimulasikan lompatan tanpa bergerak
+hum:ChangeState(Enum.HumanoidStateType.Jumping)
 end
-
-local VirtualUser = game:GetService("VirtualUser")
-
-AFKConnection = LocalPlayer.Idled:Connect(function()
-pcall(function()
-VirtualUser:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
-task.wait(1)
-VirtualUser:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+task.wait(5)
+end
 end)
-end)
-
-NotifySuccess("Anti-AFK Activated", "You will now avoid being kicked.")
-
 else
-if AFKConnection then
-AFKConnection:Disconnect()
-AFKConnection = nil
+NotifyError("Anti-AFK Nonaktif", "Fitur anti-AFK telah dimatikan.")
 end
-
-NotifySuccess("Anti-AFK Deactivated", "You can now go idle again.")
 end
-end,
 })
-
----
 
 -- Hook FireServer
 local oldNamecall
@@ -822,4 +798,41 @@ SettingsTab:CreateButton({ Name = "Server Hop (New Server)", Callback = function
 local placeId = game.PlaceId
 local servers, cursor = {}, ""
 repeat
-local url = "https
+local url = "https://games.roblox.com/v1/games/" .. placeId .. "/servers/Public?sortOrder=Asc&limit=100" .. (cursor ~= "" and "&cursor=" .. cursor or "")
+local success, result = pcall(function()
+return HttpService:JSONDecode(game:HttpGet(url))
+end)
+if success and result and result.data then
+for _, server in pairs(result.data) do
+if server.playing < server.maxPlayers and server.id ~= game.JobId then
+table.insert(servers, server.id)
+end
+end
+cursor = result.nextPageCursor or ""
+else
+break
+end
+until not cursor or #servers > 0
+
+if #servers > 0 then
+local targetServer = servers[math.random(1, #servers)]
+TeleportService:TeleportToPlaceInstance(placeId, targetServer, LocalPlayer)
+else
+NotifyError("Server Hop Failed", "No available servers found!")
+end
+end })
+SettingsTab:CreateButton({ Name = "Unload Script", Callback = function()
+Rayfield:Notify({ Title = "Script Unloaded", Content = "The script will now unload.", Duration = 3, Image = "circle-check" })
+wait(3)
+game:GetService("CoreGui").Rayfield:Destroy()
+end })
+
+-- Mengubah semua modifier fishing rod menjadi 99999
+local Modifiers = require(game:GetService("ReplicatedStorage").Shared.FishingRodModifiers)
+for key in pairs(Modifiers) do
+Modifiers[key] = 999999999
+end
+
+-- Memaksa efek "Luck Bait"
+local bait = require(game:GetService("ReplicatedStorage").Baits["Luck Bait"])
+bait.Luck = 999999999
