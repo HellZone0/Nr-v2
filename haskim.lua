@@ -6,6 +6,7 @@ local LocalPlayer = Players.LocalPlayer
 local UserInputService = game:GetService("UserInputService")
 local HttpService = game:GetService("HttpService")
 local TeleportService = game:GetService("TeleportService")
+local Lighting = game:GetService("Lighting") -- Tambahkan kembali Lighting service
 
 -- Load Rayfield
 local Rayfield = loadstring(game:HttpGet("https://raw.githubusercontent.com/SiriusSoftwareLtd/Rayfield/main/source.lua"))()
@@ -48,7 +49,7 @@ EventsTab:CreateSection("Teleport to Event")
 EventsTab:CreateDropdown({
 Name = "Select Event",
 Description = "Choose the event to teleport to.",
-Options = { "Megalodon Event", "GWorm Hunt Event", "Ghost Shark Hunt Event" },
+Options = { "Megalodon Event", "Golden Fish Event", "Rainbow Fish Event" },
 CurrentOption = "Megalodon Event",
 Flag = "EventDropdown",
 Callback = function(option)
@@ -75,13 +76,13 @@ local eventName = selectedEvent
 
 if eventName == "Megalodon Event" then
 -- Ganti koordinat ini dengan lokasi event Megalodon di game
-destination = CFrame.new(412.70, 9.45, 4134.39) 
-elseif eventName == "Worm Hunt Event" then
+destination = CFrame.new(1234, 567, 890) 
+elseif eventName == "Golden Fish Event" then
 -- Ganti koordinat ini dengan lokasi event Golden Fish
-destination = CFrame.new(91565.37, 4.88, -64.07)
-elseif eventName == "Ghost Shark Hunt Event" then
+destination = CFrame.new(987, 654, 321)
+elseif eventName == "Rainbow Fish Event" then
 -- Ganti koordinat ini dengan lokasi event Rainbow Fish
-destination = CFrame.new(1636.70, 3.63, 38909.87)
+destination = CFrame.new(111, 222, 333)
 end
 
 if destination then
@@ -221,9 +222,9 @@ Spawn_Boat:CreateButton({
 Name = "🛥️ " .. boat.Name,
 Callback = function()
 pcall(function()
-replicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/DespawnBoat"]:InvokeServer()
+ReplicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/DespawnBoat"]:InvokeServer()
 task.wait(3)
-replicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/SpawnBoat"]:InvokeServer(boat.ID)
+ReplicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/SpawnBoat"]:InvokeServer(boat.ID)
 Rayfield:Notify({
 Title = "🚤 Spawning Boat",
 Content = "Replacing with " .. boat.Name .. "\n" .. boat.Desc,
@@ -253,9 +254,9 @@ Spawn_Boat:CreateButton({
 Name = "🛶 " .. boat.Name,
 Callback = function()
 pcall(function()
-replicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/DespawnBoat"]:InvokeServer()
+ReplicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/DespawnBoat"]:InvokeServer()
 task.wait(3)
-replicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/SpawnBoat"]:InvokeServer(boat.ID)
+ReplicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/SpawnBoat"]:InvokeServer(boat.ID)
 Rayfield:Notify({
 Title = "⛵ Spawning Boat",
 Content = "Replacing with " .. boat.Name,
@@ -338,7 +339,7 @@ Buy_Rod:CreateButton({
 Name = rod.Name .. " (" .. rod.Price .. ")",
 Callback = function()
 pcall(function()
-replicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/PurchaseFishingRod"]:InvokeServer(rod.ID)
+ReplicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/PurchaseFishingRod"]:InvokeServer(rod.ID)
 Rayfield:Notify({
 Title = "🎣 Purchase Rod",
 Content = "Buying " .. rod.Name,
@@ -373,7 +374,7 @@ task.spawn(function()
 while autoBuyWeather do
 for _, w in ipairs(weathers) do
 pcall(function()
-replicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/PurchaseWeatherEvent"]:InvokeServer(w.Name)
+ReplicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/PurchaseWeatherEvent"]:InvokeServer(w.Name)
 
 end)
 task.wait(1.5) -- jeda antar pembelian
@@ -403,7 +404,7 @@ Buy_Weather:CreateButton({
 Name = w.Name .. " (" .. w.Price .. ")",
 Callback = function()
 pcall(function()
-replicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/PurchaseWeatherEvent"]:InvokeServer(w.Name)
+ReplicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/PurchaseWeatherEvent"]:InvokeServer(w.Name)
 Rayfield:Notify({
 Title = "⛅ Weather Event",
 Content = "Triggering " .. w.Name,
@@ -434,7 +435,7 @@ Buy_Baits:CreateButton({
 Name = bait.Name .. " (" .. bait.Price .. ")",
 Callback = function()
 pcall(function()
-replicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/PurchaseBait"]:InvokeServer(bait.ID)
+ReplicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/PurchaseBait"]:InvokeServer(bait.ID)
 Rayfield:Notify({
 Title = "🪱 Bait Purchase",
 Content = "Buying " .. bait.Name,
@@ -453,11 +454,11 @@ Callback = function(value)
 featureState.AutoSell = value
 if value then
 task.spawn(function()
-while featureState.AutoSell and player do
+while featureState.AutoSell and LocalPlayer do
 pcall(function()
-if not (player.Character and player.Character:FindFirstChild("HumanoidRootPart")) then return end
+if not (LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")) then return end
 
-local npcContainer = replicatedStorage:FindFirstChild("NPC")
+local npcContainer = ReplicatedStorage:FindFirstChild("NPC")
 local alexNpc = npcContainer and npcContainer:FindFirstChild("Alex")
 
 if not alexNpc then
@@ -472,16 +473,16 @@ AutoSellToggle:Set(false)
 return
 end
 
-local originalCFrame = player.Character.HumanoidRootPart.CFrame
+local originalCFrame = LocalPlayer.Character.HumanoidRootPart.CFrame
 local npcPosition = alexNpc.WorldPivot.Position
 
-player.Character.HumanoidRootPart.CFrame = CFrame.new(npcPosition)
+LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(npcPosition)
 task.wait(1)
 
-replicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/SellAllItems"]:InvokeServer()
+ReplicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/SellAllItems"]:InvokeServer()
 task.wait(1)
 
-player.Character.HumanoidRootPart.CFrame = originalCFrame
+LocalPlayer.Character.HumanoidRootPart.CFrame = originalCFrame
 end)
 task.wait(20)
 end
@@ -506,6 +507,63 @@ Duration = 3,
 })
 end,
 })
+
+---
+-- Anti-AFK Section
+local AFKSection = PlayerTab:CreateSection({
+Title = "Anti-AFK System",
+Icon = "user-x"
+})
+
+AFKSection:CreateParagraph({
+Title = "AFK Prevention",
+Content = "Prevent being kicked for inactivity"
+})
+
+local AntiAFKEnabled = true
+local AFKConnection = nil
+
+AFKSection:CreateToggle({
+Title = "Anti-AFK",
+Content = "Prevent automatic disconnection",
+Value = true,
+Callback = function(Value)
+-- Cek jika ada notifikasi sebelumnya yang perlu diabaikan
+-- if Notifs.AFKBN then
+--     Notifs.AFKBN = false
+--     return
+-- end
+
+AntiAFKEnabled = Value
+if AntiAFKEnabled then
+if AFKConnection then
+AFKConnection:Disconnect()
+end
+
+local VirtualUser = game:GetService("VirtualUser")
+
+AFKConnection = LocalPlayer.Idled:Connect(function()
+pcall(function()
+VirtualUser:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+task.wait(1)
+VirtualUser:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+end)
+end)
+
+NotifySuccess("Anti-AFK Activated", "You will now avoid being kicked.")
+
+else
+if AFKConnection then
+AFKConnection:Disconnect()
+AFKConnection = nil
+end
+
+NotifySuccess("Anti-AFK Deactivated", "You can now go idle again.")
+end
+end,
+})
+
+---
 
 -- Hook FireServer
 local oldNamecall
@@ -637,7 +695,7 @@ local islandCoords = {
 ["10"] = { name = "Isoteric Island", position = Vector3.new(1987, 4, 1400) },
 ["11"] = { name = "Lost Isle", position = Vector3.new(-3670.30078125, -113.00000762939453, -1128.0589599609375)},
 ["12"] = { name = "Lost Isle [Lost Shore]", position = Vector3.new(-3697, 97, -932)},
-["13"] = { name = "Lost Isle [Sisyphus]", position = Vector3.new(--3728.21606, -135.074417, -1012.12744, -0.977224171, 7.74980258e-09, -0.212209702, 1.566994e-08, 1, -3.5640408e-08, 0.212209702, -3.81539813e-08, -0.977224171)},
+["13"] = { name = "Lost Isle [Sisyphus]", position = Vector3.new(-3719.850830078125, -113.00000762939453, -958.6303100585938)},
 ["14"] = { name = "Lost Isle [Treasure Hall]", position = Vector3.new(-3652, -298.25, -1469)},
 ["15"] = { name = "Lost Isle [Treasure Room]", position = Vector3.new(-3652, -283.5, -1651.5)}
 }
@@ -702,5 +760,3 @@ end
 -- Memaksa efek "Luck Bait"
 local bait = require(game:GetService("ReplicatedStorage").Baits["Luck Bait"])
 bait.Luck = 999999999
-
-
