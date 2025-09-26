@@ -8,13 +8,9 @@ local HttpService = game:GetService("HttpService")
 local TeleportService = game:GetService("TeleportService")
 local Lighting = game:GetService("Lighting")
 
--- Mengubah teks watermark Rayfield sebelum memuatnya
-getgenv().Rayfield = { Config = { Watermark = "HellZone" } }
-
 -- Load Rayfield
 local Rayfield = loadstring(game:HttpGet("https://raw.githubusercontent.com/SiriusSoftwareLtd/Rayfield/main/source.lua"))()
 
--- Lanjutkan dengan seluruh skrip Anda yang lain
 -- Window
 local Window = Rayfield:CreateWindow({
 Name = "Fish It Script | HellZone",
@@ -42,10 +38,11 @@ local Buy_Rod = Window:CreateTab("Buy Rod", "cog")
 local Buy_Baits = Window:CreateTab("Buy Bait", "cog")
 local SettingsTab = Window:CreateTab("Settings", "cog")
 
+
 -- Remotes
 local net = ReplicatedStorage:WaitForChild("Packages"):WaitForChild("_Index"):WaitForChild("sleitnick_net@0.2.0"):WaitForChild("net")
 local rodRemote = net:WaitForChild("RF/ChargeFishingRod")
-local miniGameRemote = net:WaitForChild("RE/FishingMinigameStarted")
+local miniGameRemote = net:WaitForChild("RF/RequestFishingMinigameStarted")
 local finishRemote = net:WaitForChild("RE/FishingCompleted")
 local equipRemote = net:WaitForChild("RE/EquipToolFromHotbar")
 
@@ -87,8 +84,8 @@ local Replion = nil
 local ItemUtility = nil
 
 pcall(function()
-    Replion = require(ReplicatedStorage.Packages.Replion)
-    ItemUtility = require(ReplicatedStorage.Shared.ItemUtility)
+	Replion = require(ReplicatedStorage.Packages.Replion)
+	ItemUtility = require(ReplicatedStorage.Shared.ItemUtility)
 end)
 
 -- ====================================================================
@@ -148,30 +145,30 @@ Content = "Secara otomatis mem-favorit-kan ikan berharga agar tidak terjual."
 })
 
 local function startAutoFavourite()
-    task.spawn(function()
-        while featureState.AutoFavorite do
-            pcall(function()
-                if not Replion or not ItemUtility then return end
-                local DataReplion = Replion.Client:WaitReplion("Data")
-                local items = DataReplion and DataReplion:Get({"Inventory","Items"})
-                if type(items) ~= "table" then return end
-                
-                local allowedTiers = {}
-                if favoriteRarities.Secret then allowedTiers.Secret = true end
-                if favoriteRarities.Mythic then allowedTiers.Mythic = true end
-                if favoriteRarities.Legendary then allowedTiers.Legendary = true end
-                if favoriteRarities.Epic then allowedTiers.Epic = true end
+	task.spawn(function()
+		while featureState.AutoFavorite do
+			pcall(function()
+				if not Replion or not ItemUtility then return end
+				local DataReplion = Replion.Client:WaitReplion("Data")
+				local items = DataReplion and DataReplion:Get({"Inventory","Items"})
+				if type(items) ~= "table" then return end
+				
+				local allowedTiers = {}
+				if favoriteRarities.Secret then allowedTiers.Secret = true end
+				if favoriteRarities.Mythic then allowedTiers.Mythic = true end
+				if favoriteRarities.Legendary then allowedTiers.Legendary = true end
+				if favoriteRarities.Epic then allowedTiers.Epic = true end
 
-                for _, item in ipairs(items) do
-                    local base = ItemUtility:GetItemData(item.Id)
-                    if base and base.Data and allowedTiers[base.Data.Tier] and not item.Favorited then
-                        item.Favorited = true
-                    end
-                end
-            end)
-            task.wait(5)
-        end
-    end)
+				for _, item in ipairs(items) do
+					local base = ItemUtility:GetItemData(item.Id)
+					if base and base.Data and allowedTiers[base.Data.Tier] and not item.Favorited then
+						item.Favorited = true
+					end
+				end
+			end)
+			task.wait(5)
+		end
+	end)
 end
 
 AutoSellFavoriteTab:CreateSection("⭐ Pilih Kelangkaan Favorit")
@@ -226,6 +223,7 @@ NotifyError("Auto Favorite", "Auto Favorite dinonaktifkan.")
 end
 end
 })
+
 
 -- ====================================================================
 --                      AKHIR DARI KODE AUTO SELL & FAVORITE
@@ -885,7 +883,7 @@ end
 end })
 SettingsTab:CreateButton({ Name = "Unload Script", Callback = function()
 Rayfield:Notify({ Title = "Script Unloaded", Content = "The script will now unload.", Duration = 3, Image = "circle-check" })
-task.wait(3)
+wait(3)
 game:GetService("CoreGui").Rayfield:Destroy()
 end })
 
