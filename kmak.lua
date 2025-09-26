@@ -14,18 +14,20 @@ getgenv().Rayfield = { Config = { Watermark = "Teks Baru Anda" } }
 -- Load Rayfield
 local Rayfield = loadstring(game:HttpGet("https://raw.githubusercontent.com/SiriusSoftwareLtd/Rayfield/main/source.lua"))()
 
--- Window
+-- Mengubah Rayfield.ShowText dan Icon
 local Window = Rayfield:CreateWindow({
-Name = "Fish It Script | HellZone",
-LoadingTitle = "Fish It",
-LoadingSubtitle = "by @HellZone",
-Theme = "Ocean",
-ConfigurationSaving = {
-Enabled = true,
-FolderName = "HellZone",
-FileName = "FishIt"
-},
-KeySystem = false
+	Name = "Fish It Script | HellZone",
+	LoadingTitle = "Fish It",
+	LoadingSubtitle = "by @HellZone",
+	Theme = "Ocean",
+	ConfigurationSaving = {
+		Enabled = true,
+		FolderName = "HellZone",
+		FileName = "FishIt"
+	},
+	KeySystem = false,
+	ShowText = "Buka Menu", -- Teks yang akan ditampilkan
+	Icon = "fish", -- Ikon yang akan ditampilkan (gunakan nama ikon dari Lucide)
 })
 
 -- Tabs
@@ -898,4 +900,5 @@ end
 -- Memaksa efek "Luck Bait"
 local bait = require(game:GetService("ReplicatedStorage").Baits["Luck Bait"])
 bait.Luck = 999999999
+
 
