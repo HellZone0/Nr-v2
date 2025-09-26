@@ -117,7 +117,7 @@ task.wait(1)
 net:WaitForChild("RF/SellAllItems"):InvokeServer()
 task.wait(1)
 
-LocalPlayer.Character.HumanoidRootPart.CFrame = originalCframe
+LocalPlayer.Character.HumanoidRootPart.CFrame = originalCFrame
 end)
 task.wait(20)
 end
@@ -555,30 +555,63 @@ Duration = 3,
 end,
 })
 
--- Anti-AFK Feature (Updated)
-PlayerTab:CreateToggle({
-Name = "Anti-AFK",
-CurrentValue = false,
-Flag = "Anti-AFK",
-Callback = function(value)
-    antiAfkEnabled = value
-    if value then
-        NotifySuccess("Anti-AFK Aktif", "Mensimulasikan gerakan untuk menghindari kick.")
-        task.spawn(function()
-            while antiAfkEnabled do
-                local hum = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-                if hum then
-                    -- Mensimulasikan lompatan tanpa bergerak
-                    hum:ChangeState(Enum.HumanoidStateType.Jumping)
-                end
-                task.wait(5)
-            end
-        end)
-    else
-        NotifyError("Anti-AFK Nonaktif", "Fitur anti-AFK telah dimatikan.")
+-- ====================================================================
+--                      Anti AFK Module (Final Version)
+-- ====================================================================
+local AntiAFK = {}
+AntiAFK.Enabled = false
+AntiAFK.Interval = 60 -- detik
+AntiAFK._connection = nil
+local vu = game:GetService("VirtualUser")
+
+local function doAction()
+    pcall(function()
+        vu:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+        task.wait(0.1)
+        vu:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+    end)
+end
+
+function AntiAFK:Start()
+    if self.Enabled then return end
+    self.Enabled = true
+    self._connection = game:GetService("Players").LocalPlayer.Idled:Connect(doAction)
+    task.spawn(function()
+        while self.Enabled do
+            doAction()
+            task.wait(self.Interval)
+        end
+    end)
+end
+
+function AntiAFK:Stop()
+    if not self.Enabled then return end
+    self.Enabled = false
+    if self._connection then
+        self._connection:Disconnect()
+        self._connection = nil
     end
 end
+
+-- 🔹 Toggle UI untuk Anti AFK
+PlayerTab:CreateToggle({
+    Name = "Anti AFK",
+    CurrentValue = false,
+    Flag = "AntiAFK",
+    Callback = function(value)
+        if value then
+            AntiAFK:Start()
+            NotifySuccess("Anti AFK Aktif", "Fitur anti-AFK telah diaktifkan dengan aman.")
+        else
+            AntiAFK:Stop()
+            NotifyError("Anti AFK Nonaktif", "Fitur anti-AFK telah dimatikan.")
+        end
+    end
 })
+-- ====================================================================
+--                      AKHIR DARI Anti AFK Module
+-- ====================================================================
+
 
 -- Hook FireServer
 local oldNamecall
