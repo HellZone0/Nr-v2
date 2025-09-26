@@ -26,7 +26,7 @@ local Window = Rayfield:CreateWindow({
 		FileName = "FishIt"
 	},
 	KeySystem = false,
-	ShowText = "Buka Menu", -- Teks yang akan ditampilkan
+	ShowText = "HellZone Menu", -- Teks yang akan ditampilkan
 	Icon = "fish", -- Ikon yang akan ditampilkan (gunakan nama ikon dari Lucide)
 })
 
