@@ -8,32 +8,29 @@ local HttpService = game:GetService("HttpService")
 local TeleportService = game:GetService("TeleportService")
 local Lighting = game:GetService("Lighting")
 
--- Mengubah teks watermark Rayfield sebelum memuatnya
-getgenv().Rayfield = { Config = { Watermark = "Teks Baru Anda" } }
-
 -- Load Rayfield
 local Rayfield = loadstring(game:HttpGet("https://raw.githubusercontent.com/SiriusSoftwareLtd/Rayfield/main/source.lua"))()
 
--- Mengubah Rayfield.ShowText dan Icon
+-- Window
 local Window = Rayfield:CreateWindow({
-	Name = "Fish It Script | HellZone",
-	LoadingTitle = "Fish It",
-	LoadingSubtitle = "by @HellZone",
-	Theme = "Ocean",
-	ConfigurationSaving = {
-		Enabled = true,
-		FolderName = "HellZone",
-		FileName = "FishIt"
-	},
-	KeySystem = false,
-	ShowText = "Menu", -- Teks yang akan ditampilkan
-	Icon = "fish", -- Ikon yang akan ditampilkan (gunakan nama ikon dari Lucide)
+Name = "Fish It Script | HellZone",
+LoadingTitle = "Fish It",
+LoadingSubtitle = "by @HellZone",
+Theme = "Ocean",
+ConfigurationSaving = {
+Enabled = true,
+FolderName = "HellZone",
+FileName = "FishIt"
+},
+KeySystem = false,
+ShowText = "Menu", -- Teks yang ditampilkan pada tombol
+Icon = "fish" -- Ikon yang ditampilkan
 })
 
 -- Tabs
 local DevTab = Window:CreateTab("Developer", "airplay")
 local MainTab = Window:CreateTab("Auto Fish", "fish")
-local AutoSellFavoriteTab = Window:CreateTab("Auto Sell & Favorite", "star") 
+local AutoSellFavoriteTab = Window:CreateTab("Auto Sell & Favorite", "star")
 local PlayerTab = Window:CreateTab("Player", "users-round")
 local IslandsTab = Window:CreateTab("Islands", "map")
 local EventsTab = Window:CreateTab("Events", "alarm-clock")
@@ -245,7 +242,7 @@ EventsTab:CreateSection("Teleport to Event")
 EventsTab:CreateDropdown({
 Name = "Pilih Event",
 Description = "Pilih event untuk Teleport.",
-Options = { "Megalodon", "Worm", "Ghost Shark" }, -- Nama model di game
+Options = { "Megalodon", "GoldenFish", "RainbowFish" }, -- Nama model di game
 CurrentOption = "Megalodon",
 Flag = "EventDropdown",
 Callback = function(option)
@@ -266,7 +263,6 @@ local function teleportToEvent(eventModelName)
         local hrp = LocalPlayer.Character.HumanoidRootPart
         local eventPos = eventModel:GetPivot().Position
         
-        -- Teleport 10 stud di atas posisi event
         hrp.CFrame = CFrame.new(eventPos + Vector3.new(0, 10, 0))
         
         NotifySuccess("Teleport Berhasil", "Berhasil teleport ke Event '" .. eventModelName .. "'!")
@@ -312,13 +308,13 @@ EventsTab:CreateToggle({
 
 -- Developer Info
 DevTab:CreateParagraph({
-Title = "HellZone Script",
-Content = "Thanks for using this script!\n\nDont forget to follow me on my social platform\nDeveloper:\n- Tiktok: tiktok.com/hellzone.store\n- Instagram: @hellzonestore\n- GitHub: github.com/HellZone0\n\nKeep supporting!"
+Title = "HyRexxyy Script",
+Content = "Thanks for using this script!\n\nDont forget to follow me on my social platform\nDeveloper:\n- Tiktok: tiktok.com/hyrexxyy\n- Instagram: @hyrexxyy\n- GitHub: github.com/hyrexxyy\n\nKeep supporting!"
 })
 
-DevTab:CreateButton({ Name = "Tutor Tiktok", Callback = function() setclipboard("https://tiktok.com/@hellzone.store") NotifySuccess("Link Tiktok", "Copied to clipboard!") end })
-DevTab:CreateButton({ Name = "Instagram", Callback = function() setclipboard("https://instagram.com/hellzonestore/") NotifySuccess("Link Instagram", "Copied to clipboard!") end })
-DevTab:CreateButton({ Name = "GitHub", Callback = function() setclipboard("https://github.com/HellZone0/") NotifySuccess("Link GitHub", "Copied to clipboard!") end })
+DevTab:CreateButton({ Name = "Tutor Tiktok", Callback = function() setclipboard("https://tiktok.com/") NotifySuccess("Link Tiktok", "Copied to clipboard!") end })
+DevTab:CreateButton({ Name = "Instagram", Callback = function() setclipboard("https://instagram.com/") NotifySuccess("Link Instagram", "Copied to clipboard!") end })
+DevTab:CreateButton({ Name = "GitHub", Callback = function() setclipboard("https://github.com/") NotifySuccess("Link GitHub", "Copied to clipboard!") end })
 
 -- MainTab (Auto Fish)
 MainTab:CreateParagraph({
@@ -705,7 +701,7 @@ Duration = 3,
 Image = 4483362458
 })
 else
-Rayfield:Notify({
+NotifyError({
 Title = "Error",
 Content = "NPC or Character not found.",
 Duration = 3,
@@ -730,7 +726,7 @@ Duration = 3,
 Image = 4483362458
 })
 else
-Rayfield:Notify({
+NotifyError({
 Title = "Error",
 Content = "Weather Machine or Character not found.",
 Duration = 3,
@@ -906,5 +902,3 @@ end
 -- Memaksa efek "Luck Bait"
 local bait = require(game:GetService("ReplicatedStorage").Baits["Luck Bait"])
 bait.Luck = 999999999
-
-
