@@ -26,9 +26,8 @@ local Window = Rayfield:CreateWindow({
 		FileName = "FishIt"
 	},
 	KeySystem = false,
--- Hapus ShowText agar hanya ikon yang ditampilkan
-Icon = "fishing-rod", -- Ikon yang akan ditampilkan
-ToggleUIKeybind = "K" -- Atur keybind untuk membuka/menutup menu
+	ShowText = "Menu", -- Teks yang akan ditampilkan
+	Icon = "fish", -- Ikon yang akan ditampilkan (gunakan nama ikon dari Lucide)
 })
 
 -- Tabs
@@ -311,9 +310,9 @@ Title = "HellZone Script",
 Content = "Thanks for using this script!\n\nDont forget to follow me on my social platform\nDeveloper:\n- Tiktok: tiktok.com/hellzone.store\n- Instagram: @hellzonestore\n- GitHub: github.com/HellZone0\n\nKeep supporting!"
 })
 
-DevTab:CreateButton({ Name = "Tutor Tiktok", Callback = function() setclipboard("https://tiktok.com/") NotifySuccess("Link Tiktok", "Copied to clipboard!") end })
-DevTab:CreateButton({ Name = "Instagram", Callback = function() setclipboard("https://instagram.com/") NotifySuccess("Link Instagram", "Copied to clipboard!") end })
-DevTab:CreateButton({ Name = "GitHub", Callback = function() setclipboard("https://github.com/") NotifySuccess("Link GitHub", "Copied to clipboard!") end })
+DevTab:CreateButton({ Name = "Tutor Tiktok", Callback = function() setclipboard("https://tiktok.com/@hellzone.store") NotifySuccess("Link Tiktok", "Copied to clipboard!") end })
+DevTab:CreateButton({ Name = "Instagram", Callback = function() setclipboard("https://instagram.com/hellzonestore/") NotifySuccess("Link Instagram", "Copied to clipboard!") end })
+DevTab:CreateButton({ Name = "GitHub", Callback = function() setclipboard("https://github.com/HellZone0/") NotifySuccess("Link GitHub", "Copied to clipboard!") end })
 
 -- MainTab (Auto Fish)
 MainTab:CreateParagraph({
@@ -901,6 +900,5 @@ end
 -- Memaksa efek "Luck Bait"
 local bait = require(game:GetService("ReplicatedStorage").Baits["Luck Bait"])
 bait.Luck = 999999999
-
 
 
