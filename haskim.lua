@@ -28,7 +28,7 @@ KeySystem = false
 -- Tabs
 local DevTab = Window:CreateTab("Developer", "airplay")
 local MainTab = Window:CreateTab("Auto Fish", "fish")
-local AutoSellFavoriteTab = Window:CreateTab("Auto Sell & Favorite", "star")
+local AutoSellFavoriteTab = Window:CreateTab("Auto Sell & Favorite", "star") 
 local PlayerTab = Window:CreateTab("Player", "users-round")
 local IslandsTab = Window:CreateTab("Islands", "map")
 local EventsTab = Window:CreateTab("Events", "alarm-clock")
@@ -59,10 +59,10 @@ AutoFavorite = false
 
 -- New state for multi-favorite
 local favoriteRarities = {
-Secret = false,
-Mythic = false,
-Legendary = false,
-Epic = false
+    Secret = false,
+    Mythic = false,
+    Legendary = false,
+    Epic = false
 }
 
 -- State for Anti-AFK
@@ -128,40 +128,40 @@ end
 
 AutoSellFavoriteTab:CreateSection("⭐ Pilih Kelangkaan Favorit")
 AutoSellFavoriteTab:CreateToggle({
-Name = "Secret",
-CurrentValue = false,
-Flag = "FavoriteSecret",
-Callback = function(value)
-favoriteRarities.Secret = value
-NotifySuccess("Kelangkaan Dipilih", "Secret: " .. tostring(value))
-end
+    Name = "Secret",
+    CurrentValue = false,
+    Flag = "FavoriteSecret",
+    Callback = function(value)
+        favoriteRarities.Secret = value
+        NotifySuccess("Kelangkaan Dipilih", "Secret: " .. tostring(value))
+    end
 })
 AutoSellFavoriteTab:CreateToggle({
-Name = "Mythic",
-CurrentValue = false,
-Flag = "FavoriteMythic",
-Callback = function(value)
-favoriteRarities.Mythic = value
-NotifySuccess("Kelangkaan Dipilih", "Mythic: " .. tostring(value))
-end
+    Name = "Mythic",
+    CurrentValue = false,
+    Flag = "FavoriteMythic",
+    Callback = function(value)
+        favoriteRarities.Mythic = value
+        NotifySuccess("Kelangkaan Dipilih", "Mythic: " .. tostring(value))
+    end
 })
 AutoSellFavoriteTab:CreateToggle({
-Name = "Legendary",
-CurrentValue = false,
-Flag = "FavoriteLegendary",
-Callback = function(value)
-favoriteRarities.Legendary = value
-NotifySuccess("Kelangkaan Dipilih", "Legendary: " .. tostring(value))
-end
+    Name = "Legendary",
+    CurrentValue = false,
+    Flag = "FavoriteLegendary",
+    Callback = function(value)
+        favoriteRarities.Legendary = value
+        NotifySuccess("Kelangkaan Dipilih", "Legendary: " .. tostring(value))
+    end
 })
 AutoSellFavoriteTab:CreateToggle({
-Name = "Epic",
-CurrentValue = false,
-Flag = "FavoriteEpic",
-Callback = function(value)
-favoriteRarities.Epic = value
-NotifySuccess("Kelangkaan Dipilih", "Epic: " .. tostring(value))
-end
+    Name = "Epic",
+    CurrentValue = false,
+    Flag = "FavoriteEpic",
+    Callback = function(value)
+        favoriteRarities.Epic = value
+        NotifySuccess("Kelangkaan Dipilih", "Epic: " .. tostring(value))
+    end
 })
 
 AutoSellFavoriteTab:CreateToggle({
@@ -179,12 +179,12 @@ Image = "circle-check"
 })
 task.spawn(function()
 while featureState.AutoFavorite do
--- Ini adalah placeholder.
--- Di sini Anda akan menambahkan logika untuk favorit
--- menggunakan 'remote' game jika Anda menemukannya.
--- Contoh: net:WaitForChild("RF/FavoriteFish"):InvokeServer(selectedFavoriteRarity)
--- Tanpa remote ini, fitur tidak akan berfungsi.
-task.wait(5)
+    -- Ini adalah placeholder.
+    -- Di sini Anda akan menambahkan logika untuk favorit
+    -- menggunakan 'remote' game jika Anda menemukannya.
+    -- Contoh: net:WaitForChild("RF/FavoriteFish"):InvokeServer(selectedFavoriteRarity)
+    -- Tanpa remote ini, fitur tidak akan berfungsi.
+    task.wait(5)
 end
 end)
 else
@@ -223,50 +223,50 @@ end
 })
 
 local function teleportToEvent(eventModelName)
-local eventModel = Workspace:FindFirstChild(eventModelName) or Workspace:FindFirstChild("Megalodon Hunt") or Workspace:FindFirstChild("Golden Fish Hunt") or Workspace:FindFirstChild("Rainbow Fish Hunt")
+    local eventModel = Workspace:FindFirstChild(eventModelName) or Workspace:FindFirstChild("Megalodon Hunt") or Workspace:FindFirstChild("Golden Fish Hunt") or Workspace:FindFirstChild("Rainbow Fish Hunt")
 
-if eventModel and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-local hrp = LocalPlayer.Character.HumanoidRootPart
-local eventPos = eventModel:GetPivot().Position
-
--- Teleport 10 stud di atas posisi event
-hrp.CFrame = CFrame.new(eventPos + Vector3.new(0, 10, 0))
-
-NotifySuccess("Teleport Berhasil", "Berhasil teleport ke Event '" .. eventModelName .. "'!")
-return true
-else
-NotifyError("Event Tidak Ditemukan", "Event '" .. eventModelName .. "' saat ini tidak aktif atau modelnya tidak ditemukan.")
-return false
-end
+    if eventModel and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        local hrp = LocalPlayer.Character.HumanoidRootPart
+        local eventPos = eventModel:GetPivot().Position
+        
+        -- Teleport 10 stud di atas posisi event
+        hrp.CFrame = CFrame.new(eventPos + Vector3.new(0, 10, 0))
+        
+        NotifySuccess("Teleport Berhasil", "Berhasil teleport ke Event '" .. eventModelName .. "'!")
+        return true
+    else
+        NotifyError("Event Tidak Ditemukan", "Event '" .. eventModelName .. "' saat ini tidak aktif atau modelnya tidak ditemukan.")
+        return false
+    end
 end
 
 EventsTab:CreateButton({
 Name = "Teleport Manual",
 Description = "Teleport ke lokasi event yang dipilih secara manual.",
 Callback = function()
-teleportToEvent(selectedEvent)
+    teleportToEvent(selectedEvent)
 end
 })
 
 EventsTab:CreateToggle({
-Name = "Auto Teleport to Event",
-Description = "Otomatis teleport ke event yang dipilih saat aktif.",
-CurrentValue = false,
-Flag = "AutoTeleportEvent",
-Callback = function(value)
-autoTeleportEvent = value
-if value then
-NotifySuccess("Auto Teleport Aktif", "Skrip akan mencari event dan teleport otomatis.")
-task.spawn(function()
-while autoTeleportEvent do
-teleportToEvent(selectedEvent)
-task.wait(5) -- Cek setiap 5 detik
-end
-end)
-else
-NotifyError("Auto Teleport Nonaktif", "Fitur auto teleport telah dimatikan.")
-end
-end
+    Name = "Auto Teleport to Event",
+    Description = "Otomatis teleport ke event yang dipilih saat aktif.",
+    CurrentValue = false,
+    Flag = "AutoTeleportEvent",
+    Callback = function(value)
+        autoTeleportEvent = value
+        if value then
+            NotifySuccess("Auto Teleport Aktif", "Skrip akan mencari event dan teleport otomatis.")
+            task.spawn(function()
+                while autoTeleportEvent do
+                    teleportToEvent(selectedEvent)
+                    task.wait(5) -- Cek setiap 5 detik
+                end
+            end)
+        else
+            NotifyError("Auto Teleport Nonaktif", "Fitur auto teleport telah dimatikan.")
+        end
+    end
 })
 
 -- ====================================================================
@@ -555,30 +555,64 @@ Duration = 3,
 end,
 })
 
--- Anti-AFK Feature (Updated)
+
+-- ====================================================================
+--                      Anti AFK Module (Final Version)
+-- ====================================================================
+local AntiAFK = {}
+AntiAFK.Enabled = false
+AntiAFK.Interval = 60 -- detik
+AntiAFK._connection = nil
+local vu = game:GetService("VirtualUser")
+
+local function doAction()
+    pcall(function()
+        vu:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+        task.wait(0.1)
+        vu:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+    end)
+end
+
+function AntiAFK:Start()
+    if self.Enabled then return end
+    self.Enabled = true
+    self._connection = game:GetService("Players").LocalPlayer.Idled:Connect(doAction)
+    task.spawn(function()
+        while self.Enabled do
+            doAction()
+            task.wait(self.Interval)
+        end
+    end)
+end
+
+function AntiAFK:Stop()
+    if not self.Enabled then return end
+    self.Enabled = false
+    if self._connection then
+        self._connection:Disconnect()
+        self._connection = nil
+    end
+end
+
+-- 🔹 Toggle UI untuk Anti AFK
 PlayerTab:CreateToggle({
-Name = "Anti-AFK",
-CurrentValue = false,
-Flag = "Anti-AFK",
-Callback = function(value)
-antiAfkEnabled = value
-if value then
-NotifySuccess("Anti-AFK Aktif", "Mensimulasikan gerakan untuk menghindari kick.")
-task.spawn(function()
-while antiAfkEnabled do
-local hum = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-if hum then
--- Mensimulasikan lompatan tanpa bergerak
-hum:ChangeState(Enum.HumanoidStateType.Jumping)
-end
-task.wait(5)
-end
-end)
-else
-NotifyError("Anti-AFK Nonaktif", "Fitur anti-AFK telah dimatikan.")
-end
-end
+    Name = "Anti AFK",
+    CurrentValue = false,
+    Flag = "AntiAFK",
+    Callback = function(value)
+        if value then
+            AntiAFK:Start()
+            NotifySuccess("Anti AFK Aktif", "Fitur anti-AFK telah diaktifkan dengan aman.")
+        else
+            AntiAFK:Stop()
+            NotifyError("Anti AFK Nonaktif", "Fitur anti-AFK telah dimatikan.")
+        end
+    end
 })
+-- ====================================================================
+--                      AKHIR DARI Anti AFK Module
+-- ====================================================================
+
 
 -- Hook FireServer
 local oldNamecall
@@ -729,58 +763,58 @@ NotifyError("Teleport Failed", "Character or HRP not found!")
 end
 end
 })
-end
+end 
 
 -- Settings Tab
 SettingsTab:CreateSection("Performance & Settings")
 
 -- Fungsi untuk menemukan dan menonaktifkan instance
 local function findAndDisable(parent)
-for _, child in ipairs(parent:GetChildren()) do
-if child:IsA("ParticleEmitter") or child:IsA("Sound") or child:IsA("Decal") then
-child.Enabled = false
-if child:IsA("Sound") then
-child:Stop()
-end
-end
-pcall(function()
-findAndDisable(child)
-end)
-end
+    for _, child in ipairs(parent:GetChildren()) do
+        if child:IsA("ParticleEmitter") or child:IsA("Sound") or child:IsA("Decal") then
+            child.Enabled = false
+            if child:IsA("Sound") then
+                child:Stop()
+            end
+        end
+        pcall(function()
+            findAndDisable(child)
+        end)
+    end
 end
 
 -- Fungsi utama untuk mengatur grafis
 local function setGraphics(enabled)
-if enabled then
-settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
-Lighting.GlobalShadows = false
-Lighting.FogEnd = 9e9
-Lighting.Brightness = 0
-Lighting.OutdoorAmbient = Color3.new(0,0,0)
-Lighting.Ambient = Color3.new(0,0,0)
-Lighting.Technology = Enum.Technology.Compatibility
+    if enabled then
+        settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+        Lighting.GlobalShadows = false
+        Lighting.FogEnd = 9e9
+        Lighting.Brightness = 0
+        Lighting.OutdoorAmbient = Color3.new(0,0,0)
+        Lighting.Ambient = Color3.new(0,0,0)
+        Lighting.Technology = Enum.Technology.Compatibility
 
-pcall(function()
-Lighting.Sky:Destroy()
-end)
+        pcall(function()
+            Lighting.Sky:Destroy()
+        end)
+        
+        -- Menonaktifkan efek partikel, suara, dan stiker
+        findAndDisable(Workspace)
+        findAndDisable(Lighting)
+        findAndDisable(ReplicatedStorage)
 
--- Menonaktifkan efek partikel, suara, dan stiker
-findAndDisable(Workspace)
-findAndDisable(Lighting)
-findAndDisable(ReplicatedStorage)
+        Rayfield:Notify({ Title = "FPS Booster", Content = "FPS Booster diaktifkan! Banyak efek visual telah dinonaktifkan.", Duration = 5 })
+    else
+        settings().Rendering.QualityLevel = Enum.QualityLevel.Automatic
+        Lighting.GlobalShadows = true
+        Lighting.FogEnd = 50000
+        Lighting.Brightness = 2
+        Lighting.OutdoorAmbient = Color3.new(0.5, 0.5, 0.5)
+        Lighting.Ambient = Color3.new(0.5, 0.5, 0.5)
+        Lighting.Technology = Enum.Technology.ShadowMap
 
-Rayfield:Notify({ Title = "FPS Booster", Content = "FPS Booster diaktifkan! Banyak efek visual telah dinonaktifkan.", Duration = 5 })
-else
-settings().Rendering.QualityLevel = Enum.QualityLevel.Automatic
-Lighting.GlobalShadows = true
-Lighting.FogEnd = 50000
-Lighting.Brightness = 2
-Lighting.OutdoorAmbient = Color3.new(0.5, 0.5, 0.5)
-Lighting.Ambient = Color3.new(0.5, 0.5, 0.5)
-Lighting.Technology = Enum.Technology.ShadowMap
-
-Rayfield:Notify({ Title = "FPS Booster", Content = "FPS Booster dinonaktifkan! Mungkin perlu Rejoin untuk mengembalikan semua efek.", Duration = 5 })
-end
+        Rayfield:Notify({ Title = "FPS Booster", Content = "FPS Booster dinonaktifkan! Mungkin perlu Rejoin untuk mengembalikan semua efek.", Duration = 5 })
+    end
 end
 
 SettingsTab:CreateToggle({
@@ -789,7 +823,7 @@ Description = "Mengurangi kualitas grafis & mematikan efek untuk meningkatkan FP
 CurrentValue = false,
 Flag = "FPSBooster",
 Callback = function(value)
-setGraphics(value)
+    setGraphics(value)
 end
 })
 
