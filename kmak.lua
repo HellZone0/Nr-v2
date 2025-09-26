@@ -26,8 +26,9 @@ local Window = Rayfield:CreateWindow({
 		FileName = "FishIt"
 	},
 	KeySystem = false,
-	ShowText = "Menu", -- Teks yang akan ditampilkan
-	Icon = "fish", -- Ikon yang akan ditampilkan (gunakan nama ikon dari Lucide)
+-- Hapus ShowText agar hanya ikon yang ditampilkan
+Icon = "fishing-rod", -- Ikon yang akan ditampilkan
+ToggleUIKeybind = "K" -- Atur keybind untuk membuka/menutup menu
 })
 
 -- Tabs
@@ -900,5 +901,6 @@ end
 -- Memaksa efek "Luck Bait"
 local bait = require(game:GetService("ReplicatedStorage").Baits["Luck Bait"])
 bait.Luck = 999999999
+
 
 
