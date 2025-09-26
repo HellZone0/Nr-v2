@@ -58,12 +58,7 @@ AutoFavorite = false
 }
 
 -- New state for multi-favorite
-local favoriteRarities = {
-    Secret = false,
-    Mythic = false,
-    Legendary = false,
-    Epic = false
-}
+local selectedRarity = "Secret" -- Nilai default
 
 -- State for Anti-AFK
 local antiAfkEnabled = false
@@ -153,15 +148,9 @@ local function startAutoFavourite()
 				local items = DataReplion and DataReplion:Get({"Inventory","Items"})
 				if type(items) ~= "table" then return end
 				
-				local allowedTiers = {}
-				if favoriteRarities.Secret then allowedTiers.Secret = true end
-				if favoriteRarities.Mythic then allowedTiers.Mythic = true end
-				if favoriteRarities.Legendary then allowedTiers.Legendary = true end
-				if favoriteRarities.Epic then allowedTiers.Epic = true end
-
 				for _, item in ipairs(items) do
 					local base = ItemUtility:GetItemData(item.Id)
-					if base and base.Data and allowedTiers[base.Data.Tier] and not item.Favorited then
+					if base and base.Data and base.Data.Tier == selectedRarity and not item.Favorited then
 						item.Favorited = true
 					end
 				end
@@ -172,40 +161,15 @@ local function startAutoFavourite()
 end
 
 AutoSellFavoriteTab:CreateSection("⭐ Pilih Kelangkaan Favorit")
-AutoSellFavoriteTab:CreateToggle({
-    Name = "Secret",
-    CurrentValue = false,
-    Flag = "FavoriteSecret",
-    Callback = function(value)
-        favoriteRarities.Secret = value
-        NotifySuccess("Kelangkaan Dipilih", "Secret: " .. tostring(value))
-    end
-})
-AutoSellFavoriteTab:CreateToggle({
-    Name = "Mythic",
-    CurrentValue = false,
-    Flag = "FavoriteMythic",
-    Callback = function(value)
-        favoriteRarities.Mythic = value
-        NotifySuccess("Kelangkaan Dipilih", "Mythic: " .. tostring(value))
-    end
-})
-AutoSellFavoriteTab:CreateToggle({
-    Name = "Legendary",
-    CurrentValue = false,
-    Flag = "FavoriteLegendary",
-    Callback = function(value)
-        favoriteRarities.Legendary = value
-        NotifySuccess("Kelangkaan Dipilih", "Legendary: " .. tostring(value))
-    end
-})
-AutoSellFavoriteTab:CreateToggle({
-    Name = "Epic",
-    CurrentValue = false,
-    Flag = "FavoriteEpic",
-    Callback = function(value)
-        favoriteRarities.Epic = value
-        NotifySuccess("Kelangkaan Dipilih", "Epic: " .. tostring(value))
+AutoSellFavoriteTab:CreateDropdown({
+    Name = "Pilih Kelangkaan",
+    Description = "Pilih kelangkaan ikan yang ingin difavoritkan.",
+    Options = { "Secret", "Mythic", "Legendary", "Epic" },
+    CurrentOption = selectedRarity,
+    Flag = "AutoFavoriteRarity",
+    Callback = function(option)
+        selectedRarity = option
+        NotifySuccess("Kelangkaan Dipilih", "Ikan dengan kelangkaan " .. option .. " akan difavoritkan.")
     end
 })
 
@@ -416,16 +380,8 @@ end
 end
 })
 
-MainTab:CreateToggle({
-Name = "✨ Use Perfect Cast",
-CurrentValue = false,
-Callback = function(val)
-perfectCast = val
-end
-})
-
 MainTab:CreateSlider({
-Name = "⏱️ Auto Recast Delay (seconds)",
+Name = "✨ Use Perfect Cast",
 Range = {0.5, 5},
 Increment = 0.1,
 CurrentValue = autoRecastDelay,
