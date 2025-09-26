@@ -22,7 +22,9 @@ Enabled = true,
 FolderName = "HellZone",
 FileName = "FishIt"
 },
-KeySystem = false
+KeySystem = false,
+ShowText = "Buka Menu", -- Teks yang ditampilkan pada tombol
+Icon = "fish" -- Ikon yang ditampilkan
 })
 
 -- Tabs
@@ -232,7 +234,7 @@ end
 --                      KODE UNTUK FITUR EVENT (Sudah Diperbaiki)
 -- ====================================================================
 
-local selectedEvent = "Megalodon Hunt" -- Nilai default
+local selectedEvent = "Megalodon" -- Nilai default
 local autoTeleportEvent = false
 
 EventsTab:CreateSection("Teleport to Event")
@@ -240,7 +242,7 @@ EventsTab:CreateSection("Teleport to Event")
 EventsTab:CreateDropdown({
 Name = "Pilih Event",
 Description = "Pilih event untuk Teleport.",
-Options = { "Megalodon Hunt", "Worm Hunt", "RGhost Shark Hunt" }, -- Nama model di game
+Options = { "Megalodon Hunt", "Worm Hunt", "Ghost Shark Hunt" }, -- Nama model di game
 CurrentOption = "Megalodon",
 Flag = "EventDropdown",
 Callback = function(option)
@@ -249,7 +251,7 @@ end
 })
 
 local function teleportToEvent(eventModelName)
-    -- Perbaikan: Mencari objek yang memiliki nama event di dalamnya
+    -- Mencari objek yang memiliki nama event di dalamnya
     local eventModel = nil
     for _, child in pairs(Workspace:GetChildren()) do
         if child.Name:find(eventModelName, 1, true) then
