@@ -23,7 +23,7 @@ FolderName = "HellZone",
 FileName = "FishIt"
 },
 KeySystem = false,
-ShowText = "Menu", -- Teks yang ditampilkan pada tombol
+ShowText = "Buka Menu", -- Teks yang ditampilkan pada tombol
 Icon = "fish" -- Ikon yang ditampilkan
 })
 
@@ -43,7 +43,7 @@ local SettingsTab = Window:CreateTab("Settings", "cog")
 -- Remotes
 local net = ReplicatedStorage:WaitForChild("Packages"):WaitForChild("_Index"):WaitForChild("sleitnick_net@0.2.0"):WaitForChild("net")
 local rodRemote = net:WaitForChild("RF/ChargeFishingRod")
-local miniGameRemote = net:WaitForChild("RF/RequestFishingMinigameStarted")
+local miniGameRemote = net:WaitForChild("RE/FishingMinigameStarted")
 local finishRemote = net:WaitForChild("RE/FishingCompleted")
 local equipRemote = net:WaitForChild("RE/EquipToolFromHotbar")
 
