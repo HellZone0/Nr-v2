@@ -26,7 +26,7 @@ local Window = Rayfield:CreateWindow({
 		FileName = "FishIt"
 	},
 	KeySystem = false,
-	ShowText = "HellZone Menu", -- Teks yang akan ditampilkan
+	ShowText = "Menu", -- Teks yang akan ditampilkan
 	Icon = "fish", -- Ikon yang akan ditampilkan (gunakan nama ikon dari Lucide)
 })
 
@@ -900,5 +900,6 @@ end
 -- Memaksa efek "Luck Bait"
 local bait = require(game:GetService("ReplicatedStorage").Baits["Luck Bait"])
 bait.Luck = 999999999
+
 
 
