@@ -6,7 +6,7 @@ local LocalPlayer = Players.LocalPlayer
 local UserInputService = game:GetService("UserInputService")
 local HttpService = game:GetService("HttpService")
 local TeleportService = game:GetService("TeleportService")
-local Lighting = game:GetService("Lighting") -- Tambahkan kembali Lighting service
+local Lighting = game:GetService("Lighting")
 
 -- Load Rayfield
 local Rayfield = loadstring(game:HttpGet("https://raw.githubusercontent.com/SiriusSoftwareLtd/Rayfield/main/source.lua"))()
@@ -28,6 +28,7 @@ KeySystem = false
 -- Tabs
 local DevTab = Window:CreateTab("Developer", "airplay")
 local MainTab = Window:CreateTab("Auto Fish", "fish")
+local AutoSellFavoriteTab = Window:CreateTab("Auto Sell & Favorite", "star")
 local PlayerTab = Window:CreateTab("Player", "users-round")
 local IslandsTab = Window:CreateTab("Islands", "map")
 local EventsTab = Window:CreateTab("Events", "alarm-clock")
@@ -37,124 +38,6 @@ local Buy_Rod = Window:CreateTab("Buy Rod", "cog")
 local Buy_Baits = Window:CreateTab("Buy Bait", "cog")
 local SettingsTab = Window:CreateTab("Settings", "cog")
 
--- ====================================================================
---                      KODE UNTUK FITUR EVENT (Sudah Diperbaiki)
--- ====================================================================
-
-local selectedEvent = "Megalodon Event" -- Nilai default
-local teleportPlatform = nil -- Variabel untuk menyimpan referensi papan transparan
-
-EventsTab:CreateSection("Teleport to Event")
-
-EventsTab:CreateDropdown({
-Name = "Select Event",
-Description = "Choose the event to teleport to.",
-Options = { "Megalodon Event", "Golden Fish Event", "Rainbow Fish Event" },
-CurrentOption = "Megalodon Event",
-Flag = "EventDropdown",
-Callback = function(option)
-selectedEvent = option
-end
-})
-
-EventsTab:CreateButton({
-Name = "Teleport to Event",
-Description = "Teleports you to the selected event location.",
-Callback = function()
-if not LocalPlayer.Character or not LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-Rayfield:Notify({
-Title = "Error",
-Content = "Character not found. Please try again.",
-Duration = 5,
-Image = "x"
-})
-return
-end
-
-local destination = nil
-local eventName = selectedEvent
-
-if eventName == "Megalodon Event" then
--- Ganti koordinat ini dengan lokasi event Megalodon di game
-destination = CFrame.new(1234, 567, 890) 
-elseif eventName == "Golden Fish Event" then
--- Ganti koordinat ini dengan lokasi event Golden Fish
-destination = CFrame.new(987, 654, 321)
-elseif eventName == "Rainbow Fish Event" then
--- Ganti koordinat ini dengan lokasi event Rainbow Fish
-destination = CFrame.new(111, 222, 333)
-end
-
-if destination then
--- Hancurkan papan sebelumnya jika ada
-if teleportPlatform and teleportPlatform.Parent then
-teleportPlatform:Destroy()
-end
-
-LocalPlayer.Character.HumanoidRootPart.CFrame = destination
-
-            -- Gunakan Raycast untuk menemukan permukaan di bawah
-local origin = destination.Position
-            local direction = Vector3.new(0, -500, 0) -- Tembak ke bawah sejauh 500 stud
-local raycastParams = RaycastParams.new()
-raycastParams.FilterDescendantsInstances = {LocalPlayer.Character}
-raycastParams.FilterType = Enum.RaycastFilterType.Exclude
-
-local result = Workspace:Raycast(origin, direction, raycastParams)
-
-local platformPosition
-if result then
-                -- Atur posisi papan tepat di atas permukaan yang terdeteksi
-platformPosition = result.Position + Vector3.new(0, 0.5, 0)
-else
-                -- Jika Raycast tidak mendeteksi apapun, gunakan posisi default yang rendah
-platformPosition = destination.Position + Vector3.new(0, -5, 0)
-end
-
--- Buat papan transparan
-teleportPlatform = Instance.new("Part")
-teleportPlatform.Name = "TemporaryTeleportPlatform"
-teleportPlatform.Size = Vector3.new(20, 1, 20)
-teleportPlatform.CFrame = CFrame.new(platformPosition)
-teleportPlatform.Transparency = 1
-teleportPlatform.CanCollide = true
-teleportPlatform.Anchored = true
-teleportPlatform.Parent = Workspace
-
--- Loop untuk menghancurkan papan ketika player bergerak menjauh
-task.spawn(function()
-local initialPosition = LocalPlayer.Character.HumanoidRootPart.Position
-while wait(0.5) and teleportPlatform and teleportPlatform.Parent do
-local currentPosition = LocalPlayer.Character.HumanoidRootPart.Position
-if (currentPosition - initialPosition).Magnitude > 50 then
-teleportPlatform:Destroy()
-teleportPlatform = nil
-break
-end
-end
-end)
-
-Rayfield:Notify({
-Title = "Success!",
-Content = "Teleported to " .. eventName,
-Duration = 5,
-Image = "circle-check"
-})
-else
-Rayfield:Notify({
-Title = "Error",
-Content = "Event location not defined.",
-Duration = 5,
-Image = "x"
-})
-end
-end
-})
-
--- ====================================================================
---                      AKHIR DARI KODE FITUR EVENT
--- ====================================================================
-
 -- Remotes
 local net = ReplicatedStorage:WaitForChild("Packages"):WaitForChild("_Index"):WaitForChild("sleitnick_net@0.2.0"):WaitForChild("net")
 local rodRemote = net:WaitForChild("RF/ChargeFishingRod")
@@ -163,16 +46,26 @@ local finishRemote = net:WaitForChild("RE/FishingCompleted")
 local equipRemote = net:WaitForChild("RE/EquipToolFromHotbar")
 
 -- State
-local AutoSell = false
 local autofish = false
 local perfectCast = false
 local ijump = false
 local autoRecastDelay = 0.5
 local enchantPos = Vector3.new(3231, -1303, 1402)
-
 local featureState = {
 AutoSell = false,
+AutoFavorite = false
 }
+
+-- New state for multi-favorite
+local favoriteRarities = {
+Secret = false,
+Mythic = false,
+Legendary = false,
+Epic = false
+}
+
+-- State for Anti-AFK
+local antiAfkEnabled = false
 
 local function NotifySuccess(title, message)
 Rayfield:Notify({ Title = title, Content = message, Duration = 3, Image = "circle-check" })
@@ -181,6 +74,203 @@ end
 local function NotifyError(title, message)
 Rayfield:Notify({ Title = title, Content = message, Duration = 3, Image = "ban" })
 end
+
+-- ====================================================================
+--                      FAVORITE FISH SECTION
+-- ====================================================================
+
+AutoSellFavoriteTab:CreateSection("Auto Sell & Favorite Settings")
+
+AutoSellFavoriteTab:CreateToggle({
+Name = "🛒 Auto Sell (Teleport ke Alex)",
+CurrentValue = false,
+Flag = "AutoSell",
+Callback = function(value)
+featureState.AutoSell = value
+if value then
+task.spawn(function()
+while featureState.AutoSell and LocalPlayer do
+pcall(function()
+if not (LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")) then return end
+
+local npcContainer = ReplicatedStorage:FindFirstChild("NPC")
+local alexNpc = npcContainer and npcContainer:FindFirstChild("Alex")
+
+if not alexNpc then
+Rayfield:Notify({
+Title = "❌ Error",
+Content = "NPC 'Alex' tidak ditemukan!",
+Duration = 5,
+Image = 4483362458
+})
+featureState.AutoSell = false
+return
+end
+
+local originalCFrame = LocalPlayer.Character.HumanoidRootPart.CFrame
+local npcPosition = alexNpc.WorldPivot.Position
+
+LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(npcPosition)
+task.wait(1)
+
+net:WaitForChild("RF/SellAllItems"):InvokeServer()
+task.wait(1)
+
+LocalPlayer.Character.HumanoidRootPart.CFrame = originalCFrame
+end)
+task.wait(20)
+end
+end)
+end
+end
+})
+
+AutoSellFavoriteTab:CreateSection("⭐ Pilih Kelangkaan Favorit")
+AutoSellFavoriteTab:CreateToggle({
+Name = "Secret",
+CurrentValue = false,
+Flag = "FavoriteSecret",
+Callback = function(value)
+favoriteRarities.Secret = value
+NotifySuccess("Kelangkaan Dipilih", "Secret: " .. tostring(value))
+end
+})
+AutoSellFavoriteTab:CreateToggle({
+Name = "Mythic",
+CurrentValue = false,
+Flag = "FavoriteMythic",
+Callback = function(value)
+favoriteRarities.Mythic = value
+NotifySuccess("Kelangkaan Dipilih", "Mythic: " .. tostring(value))
+end
+})
+AutoSellFavoriteTab:CreateToggle({
+Name = "Legendary",
+CurrentValue = false,
+Flag = "FavoriteLegendary",
+Callback = function(value)
+favoriteRarities.Legendary = value
+NotifySuccess("Kelangkaan Dipilih", "Legendary: " .. tostring(value))
+end
+})
+AutoSellFavoriteTab:CreateToggle({
+Name = "Epic",
+CurrentValue = false,
+Flag = "FavoriteEpic",
+Callback = function(value)
+favoriteRarities.Epic = value
+NotifySuccess("Kelangkaan Dipilih", "Epic: " .. tostring(value))
+end
+})
+
+AutoSellFavoriteTab:CreateToggle({
+Name = "⭐ Enable Auto Favorite",
+CurrentValue = false,
+Flag = "AutoFavorite",
+Callback = function(value)
+featureState.AutoFavorite = value
+if value then
+Rayfield:Notify({
+Title = "Fitur Auto Favorite Diaktifkan",
+Content = "Fitur ini hanya akan berfungsi jika Anda memiliki 'remote' yang sesuai.",
+Duration = 5,
+Image = "circle-check"
+})
+task.spawn(function()
+while featureState.AutoFavorite do
+-- Ini adalah placeholder.
+-- Di sini Anda akan menambahkan logika untuk favorit
+-- menggunakan 'remote' game jika Anda menemukannya.
+-- Contoh: net:WaitForChild("RF/FavoriteFish"):InvokeServer(selectedFavoriteRarity)
+-- Tanpa remote ini, fitur tidak akan berfungsi.
+task.wait(5)
+end
+end)
+else
+Rayfield:Notify({
+Title = "Fitur Auto Favorite Dinonaktifkan",
+Content = "Auto Favorite telah dimatikan.",
+Duration = 5,
+Image = "x"
+})
+end
+end
+})
+
+-- ====================================================================
+--                      END OF AUTO SELL & FAVORITE SECTION
+-- ====================================================================
+
+-- ====================================================================
+--                      KODE UNTUK FITUR EVENT (Sudah Diperbaiki)
+-- ====================================================================
+
+local selectedEvent = "Megalodon" -- Nilai default
+local autoTeleportEvent = false
+
+EventsTab:CreateSection("Teleport to Event")
+
+EventsTab:CreateDropdown({
+Name = "Pilih Event",
+Description = "Pilih event untuk Teleport.",
+Options = { "Megalodon", "GoldenFish", "RainbowFish" }, -- Nama model di game
+CurrentOption = "Megalodon",
+Flag = "EventDropdown",
+Callback = function(option)
+selectedEvent = option
+end
+})
+
+local function teleportToEvent(eventModelName)
+local eventModel = Workspace:FindFirstChild(eventModelName) or Workspace:FindFirstChild("Megalodon Hunt") or Workspace:FindFirstChild("Golden Fish Hunt") or Workspace:FindFirstChild("Rainbow Fish Hunt")
+
+if eventModel and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+local hrp = LocalPlayer.Character.HumanoidRootPart
+local eventPos = eventModel:GetPivot().Position
+
+-- Teleport 10 stud di atas posisi event
+hrp.CFrame = CFrame.new(eventPos + Vector3.new(0, 10, 0))
+
+NotifySuccess("Teleport Berhasil", "Berhasil teleport ke Event '" .. eventModelName .. "'!")
+return true
+else
+NotifyError("Event Tidak Ditemukan", "Event '" .. eventModelName .. "' saat ini tidak aktif atau modelnya tidak ditemukan.")
+return false
+end
+end
+
+EventsTab:CreateButton({
+Name = "Teleport Manual",
+Description = "Teleport ke lokasi event yang dipilih secara manual.",
+Callback = function()
+teleportToEvent(selectedEvent)
+end
+})
+
+EventsTab:CreateToggle({
+Name = "Auto Teleport to Event",
+Description = "Otomatis teleport ke event yang dipilih saat aktif.",
+CurrentValue = false,
+Flag = "AutoTeleportEvent",
+Callback = function(value)
+autoTeleportEvent = value
+if value then
+NotifySuccess("Auto Teleport Aktif", "Skrip akan mencari event dan teleport otomatis.")
+task.spawn(function()
+while autoTeleportEvent do
+teleportToEvent(selectedEvent)
+task.wait(5) -- Cek setiap 5 detik
+end
+end)
+else
+NotifyError("Auto Teleport Nonaktif", "Fitur auto teleport telah dimatikan.")
+end
+end
+})
+
+-- ====================================================================
+--                      AKHIR DARI KODE FITUR EVENT
+-- ====================================================================
 
 -- Developer Info
 DevTab:CreateParagraph({
@@ -446,51 +536,6 @@ end
 })
 end
 
-local AutoSellToggle = MainTab:CreateToggle({
-Name = "🛒 Auto Sell (Teleport ke Alex)",
-CurrentValue = false,
-Flag = "AutoSell",
-Callback = function(value)
-featureState.AutoSell = value
-if value then
-task.spawn(function()
-while featureState.AutoSell and LocalPlayer do
-pcall(function()
-if not (LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")) then return end
-
-local npcContainer = ReplicatedStorage:FindFirstChild("NPC")
-local alexNpc = npcContainer and npcContainer:FindFirstChild("Alex")
-
-if not alexNpc then
-Rayfield:Notify({
-Title = "❌ Error",
-Content = "NPC 'Alex' tidak ditemukan!",
-Duration = 5,
-Image = 4483362458
-})
-featureState.AutoSell = false
-AutoSellToggle:Set(false)
-return
-end
-
-local originalCFrame = LocalPlayer.Character.HumanoidRootPart.CFrame
-local npcPosition = alexNpc.WorldPivot.Position
-
-LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(npcPosition)
-task.wait(1)
-
-ReplicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/SellAllItems"]:InvokeServer()
-task.wait(1)
-
-LocalPlayer.Character.HumanoidRootPart.CFrame = originalCFrame
-end)
-task.wait(20)
-end
-end)
-end
-end
-})
-
 -- Toggle logic
 local blockUpdateOxygen = false
 
@@ -528,12 +573,6 @@ Title = "Anti-AFK",
 Content = "Prevent automatic disconnection",
 Value = true,
 Callback = function(Value)
--- Cek jika ada notifikasi sebelumnya yang perlu diabaikan
--- if Notifs.AFKBN then
---     Notifs.AFKBN = false
---     return
--- end
-
 AntiAFKEnabled = Value
 if AntiAFKEnabled then
 if AFKConnection then
@@ -693,7 +732,7 @@ local islandCoords = {
 ["08"] = { name = "Kohana", position = Vector3.new(-658, 3, 719) },
 ["09"] = { name = "Winter Fest", position = Vector3.new(1611, 4, 3280) },
 ["10"] = { name = "Isoteric Island", position = Vector3.new(1987, 4, 1400) },
-["11"] = { name = "Lost Isle", position = Vector3.new(-3670.30078125, -113.00000762939453, -1128.0589599609375)},
+["11"] = { name = "Lost Isle", position = Vector3.new(-3670.30078125, -113.00000762939453, -1128.058959375)},
 ["12"] = { name = "Lost Isle [Lost Shore]", position = Vector3.new(-3697, 97, -932)},
 ["13"] = { name = "Lost Isle [Sisyphus]", position = Vector3.new(-3719.850830078125, -113.00000762939453, -958.6303100585938)},
 ["14"] = { name = "Lost Isle [Treasure Hall]", position = Vector3.new(-3652, -298.25, -1469)},
@@ -714,49 +753,73 @@ NotifyError("Teleport Failed", "Character or HRP not found!")
 end
 end
 })
-end 
+end
 
 -- Settings Tab
+SettingsTab:CreateSection("Performance & Settings")
+
+-- Fungsi untuk menemukan dan menonaktifkan instance
+local function findAndDisable(parent)
+for _, child in ipairs(parent:GetChildren()) do
+if child:IsA("ParticleEmitter") or child:IsA("Sound") or child:IsA("Decal") then
+child.Enabled = false
+if child:IsA("Sound") then
+child:Stop()
+end
+end
+pcall(function()
+findAndDisable(child)
+end)
+end
+end
+
+-- Fungsi utama untuk mengatur grafis
+local function setGraphics(enabled)
+if enabled then
+settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+Lighting.GlobalShadows = false
+Lighting.FogEnd = 9e9
+Lighting.Brightness = 0
+Lighting.OutdoorAmbient = Color3.new(0,0,0)
+Lighting.Ambient = Color3.new(0,0,0)
+Lighting.Technology = Enum.Technology.Compatibility
+
+pcall(function()
+Lighting.Sky:Destroy()
+end)
+
+-- Menonaktifkan efek partikel, suara, dan stiker
+findAndDisable(Workspace)
+findAndDisable(Lighting)
+findAndDisable(ReplicatedStorage)
+
+Rayfield:Notify({ Title = "FPS Booster", Content = "FPS Booster diaktifkan! Banyak efek visual telah dinonaktifkan.", Duration = 5 })
+else
+settings().Rendering.QualityLevel = Enum.QualityLevel.Automatic
+Lighting.GlobalShadows = true
+Lighting.FogEnd = 50000
+Lighting.Brightness = 2
+Lighting.OutdoorAmbient = Color3.new(0.5, 0.5, 0.5)
+Lighting.Ambient = Color3.new(0.5, 0.5, 0.5)
+Lighting.Technology = Enum.Technology.ShadowMap
+
+Rayfield:Notify({ Title = "FPS Booster", Content = "FPS Booster dinonaktifkan! Mungkin perlu Rejoin untuk mengembalikan semua efek.", Duration = 5 })
+end
+end
+
+SettingsTab:CreateToggle({
+Name = "🚀 FPS Booster",
+Description = "Mengurangi kualitas grafis & mematikan efek untuk meningkatkan FPS.",
+CurrentValue = false,
+Flag = "FPSBooster",
+Callback = function(value)
+setGraphics(value)
+end
+})
+
 SettingsTab:CreateButton({ Name = "Rejoin Server", Callback = function() TeleportService:Teleport(game.PlaceId, LocalPlayer) end })
 SettingsTab:CreateButton({ Name = "Server Hop (New Server)", Callback = function()
 local placeId = game.PlaceId
 local servers, cursor = {}, ""
 repeat
-local url = "https://games.roblox.com/v1/games/" .. placeId .. "/servers/Public?sortOrder=Asc&limit=100" .. (cursor ~= "" and "&cursor=" .. cursor or "")
-local success, result = pcall(function()
-return HttpService:JSONDecode(game:HttpGet(url))
-end)
-if success and result and result.data then
-for _, server in pairs(result.data) do
-if server.playing < server.maxPlayers and server.id ~= game.JobId then
-table.insert(servers, server.id)
-end
-end
-cursor = result.nextPageCursor or ""
-else
-break
-end
-until not cursor or #servers > 0
-
-if #servers > 0 then
-local targetServer = servers[math.random(1, #servers)]
-TeleportService:TeleportToPlaceInstance(placeId, targetServer, LocalPlayer)
-else
-NotifyError("Server Hop Failed", "No available servers found!")
-end
-end })
-SettingsTab:CreateButton({ Name = "Unload Script", Callback = function()
-Rayfield:Notify({ Title = "Script Unloaded", Content = "The script will now unload.", Duration = 3, Image = "circle-check" })
-wait(3)
-game:GetService("CoreGui").Rayfield:Destroy()
-end })
-
--- Mengubah semua modifier fishing rod menjadi 99999
-local Modifiers = require(game:GetService("ReplicatedStorage").Shared.FishingRodModifiers)
-for key in pairs(Modifiers) do
-Modifiers[key] = 999999999
-end
-
--- Memaksa efek "Luck Bait"
-local bait = require(game:GetService("ReplicatedStorage").Baits["Luck Bait"])
-bait.Luck = 999999999
+local url = "https
