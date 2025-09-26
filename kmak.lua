@@ -23,14 +23,14 @@ FolderName = "HellZone",
 FileName = "FishIt"
 },
 KeySystem = false,
-ShowText = "Buka Menu", -- Teks yang ditampilkan pada tombol
+ShowText = "Menu", -- Teks yang ditampilkan pada tombol
 Icon = "fish" -- Ikon yang ditampilkan
 })
 
 -- Tabs
 local DevTab = Window:CreateTab("Developer", "airplay")
 local MainTab = Window:CreateTab("Auto Fish", "fish")
-local AutoSellFavoriteTab = Window:CreateTab("Auto Sell & Favorite", "star")
+local AutoSellFavoriteTab = Window:CreateTab("Auto Sell & Favorite", "star") 
 local PlayerTab = Window:CreateTab("Player", "users-round")
 local IslandsTab = Window:CreateTab("Islands", "map")
 local EventsTab = Window:CreateTab("Events", "alarm-clock")
@@ -43,7 +43,8 @@ local SettingsTab = Window:CreateTab("Settings", "cog")
 -- Remotes
 local net = ReplicatedStorage:WaitForChild("Packages"):WaitForChild("_Index"):WaitForChild("sleitnick_net@0.2.0"):WaitForChild("net")
 local rodRemote = net:WaitForChild("RF/ChargeFishingRod")
-local miniGameRemote = net:WaitForChild("RE/FishingMinigameStarted")
+-- Nama remote yang benar sesuai skrip Anda:
+local miniGameRemote = net:WaitForChild("RE/FishingMinigameStarted") 
 local finishRemote = net:WaitForChild("RE/FishingCompleted")
 local equipRemote = net:WaitForChild("RE/EquipToolFromHotbar")
 
@@ -242,7 +243,7 @@ EventsTab:CreateSection("Teleport to Event")
 EventsTab:CreateDropdown({
 Name = "Pilih Event",
 Description = "Pilih event untuk Teleport.",
-Options = { "Megalodon Hunt", "Worm Hunt", "Ghost Shark Hunt" }, -- Nama model di game
+Options = { "Megalodon", "Worm", "Ghost Shark" }, -- Nama model di game
 CurrentOption = "Megalodon",
 Flag = "EventDropdown",
 Callback = function(option)
@@ -251,7 +252,6 @@ end
 })
 
 local function teleportToEvent(eventModelName)
-    -- Mencari objek yang memiliki nama event di dalamnya
     local eventModel = nil
     for _, child in pairs(Workspace:GetChildren()) do
         if child.Name:find(eventModelName, 1, true) then
