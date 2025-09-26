@@ -8,11 +8,13 @@ local HttpService = game:GetService("HttpService")
 local TeleportService = game:GetService("TeleportService")
 local Lighting = game:GetService("Lighting")
 
+-- Mengubah teks watermark Rayfield sebelum memuatnya
+getgenv().Rayfield = { Config = { Watermark = "Teks Baru Anda" } }
+
 -- Load Rayfield
-local Rayfield = loadstring(game:HttpGet("https://raw.githubusercontent.com/SiriusSoftwareLtd/Rayfield/main/source.lua"))()
+local Rayfield = loadstring(game:HttpGet("https://raw.githubusercontent.com/Shlexan/Rayfield/main/source.lua"))()
 
 -- Window
--- Kustomisasi tombol menu utama di sini
 local Window = Rayfield:CreateWindow({
 Name = "Fish It Script | HellZone",
 LoadingTitle = "Fish It",
@@ -23,9 +25,7 @@ Enabled = true,
 FolderName = "HellZone",
 FileName = "FishIt"
 },
-KeySystem = false,
-ShowText = "Buka Menu", -- Teks untuk tombol menu
-Icon = "fish" -- Ikon untuk tombol menu
+KeySystem = false
 })
 
 -- Tabs
@@ -40,8 +40,6 @@ local Buy_Weather = Window:CreateTab("Buy Weather", "cog")
 local Buy_Rod = Window:CreateTab("Buy Rod", "cog")
 local Buy_Baits = Window:CreateTab("Buy Bait", "cog")
 local SettingsTab = Window:CreateTab("Settings", "cog")
--- Tambahkan tab kustomisasi baru
-local CustomizeTab = Window:CreateTab("Customize", "paint-brush")
 
 -- Remotes
 local net = ReplicatedStorage:WaitForChild("Packages"):WaitForChild("_Index"):WaitForChild("sleitnick_net@0.2.0"):WaitForChild("net")
