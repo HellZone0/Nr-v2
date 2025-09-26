@@ -25,15 +25,13 @@ Enabled = true,
 FolderName = "HellZone",
 FileName = "FishIt"
 },
-KeySystem = false,
-ShowText = "Buka Menu", -- Teks yang ditampilkan pada tombol
-Icon = "fish" -- Ikon yang ditampilkan
+KeySystem = false
 })
 
 -- Tabs
 local DevTab = Window:CreateTab("Developer", "airplay")
 local MainTab = Window:CreateTab("Auto Fish", "fish")
-local AutoSellFavoriteTab = Window:CreateTab("Auto Sell & Favorite", "star")
+local AutoSellFavoriteTab = Window:CreateTab("Auto Sell & Favorite", "star") 
 local PlayerTab = Window:CreateTab("Player", "users-round")
 local IslandsTab = Window:CreateTab("Islands", "map")
 local EventsTab = Window:CreateTab("Events", "alarm-clock")
@@ -81,7 +79,7 @@ Rayfield:Notify({ Title = title, Content = message, Duration = 3, Image = "ban" 
 end
 
 -- ====================================================================
---                      DEPENDENSI BARU UNTUK AUTO FAVORITE
+--                      DEPENDENSI BARU UNTUK AUTO FAVORITE
 -- ====================================================================
 
 local Replion = nil
@@ -93,7 +91,7 @@ pcall(function()
 end)
 
 -- ====================================================================
---                      KODE BARU AUTO SELL & FAVORITE
+--                      KODE BARU AUTO SELL & FAVORITE
 -- ====================================================================
 AutoSellFavoriteTab:CreateSection("🛒 Auto Sell (Teleport ke Alex)")
 
@@ -230,11 +228,11 @@ end
 
 
 -- ====================================================================
---                      AKHIR DARI KODE AUTO SELL & FAVORITE
+--                      AKHIR DARI KODE AUTO SELL & FAVORITE
 -- ====================================================================
 
 -- ====================================================================
---                      KODE UNTUK FITUR EVENT (Sudah Diperbaiki)
+--                      KODE UNTUK FITUR EVENT (Sudah Diperbaiki)
 -- ====================================================================
 
 local selectedEvent = "Megalodon" -- Nilai default
@@ -301,7 +299,7 @@ EventsTab:CreateToggle({
 })
 
 -- ====================================================================
---                      AKHIR DARI KODE FITUR EVENT
+--                      AKHIR DARI KODE FITUR EVENT
 -- ====================================================================
 
 -- Developer Info
@@ -587,7 +585,7 @@ end,
 })
 
 -- ====================================================================
---                      Anti AFK Module (Final Version)
+--                      Anti AFK Module (Final Version)
 -- ====================================================================
 local AntiAFK = {}
 AntiAFK.Enabled = false
@@ -640,7 +638,7 @@ PlayerTab:CreateToggle({
     end
 })
 -- ====================================================================
---                      AKHIR DARI Anti AFK Module
+--                      AKHIR DARI Anti AFK Module
 -- ====================================================================
 
 
@@ -793,8 +791,8 @@ NotifyError("Teleport Failed", "Character or HRP not found!")
 end
 end
 })
-end
- 
+end 
+
 -- Settings Tab
 SettingsTab:CreateSection("Performance & Settings")
 
