@@ -24,7 +24,7 @@ FolderName = "HellZone",
 FileName = "FishIt"
 },
 KeySystem = false,
-ShowText = "Zone Menu", -- Teks untuk tombol menu
+ShowText = "Buka Menu", -- Teks untuk tombol menu
 Icon = "fish" -- Ikon untuk tombol menu
 })
 
@@ -900,4 +900,3 @@ end
 -- Memaksa efek "Luck Bait"
 local bait = require(game:GetService("ReplicatedStorage").Baits["Luck Bait"])
 bait.Luck = 999999999
-
