@@ -245,7 +245,7 @@ EventsTab:CreateSection("Teleport to Event")
 EventsTab:CreateDropdown({
 Name = "Pilih Event",
 Description = "Pilih event untuk Teleport.",
-Options = { "Megalodon Hunt", "GoldenFish", "RainbowFish" }, -- Nama model di game
+Options = { "Megalodon", "GoldenFish", "RainbowFish" }, -- Nama model di game
 CurrentOption = "Megalodon",
 Flag = "EventDropdown",
 Callback = function(option)
@@ -310,7 +310,7 @@ Title = "HellZone Script",
 Content = "Thanks for using this script!\n\nDont forget to follow me on my social platform\nDeveloper:\n- Tiktok: tiktok.com/hellzone.store\n- Instagram: @hellzonestore\n- GitHub: github.com/HellZone0\n\nKeep supporting!"
 })
 
-DevTab:CreateButton({ Name = "Tutor Tiktok", Callback = function() setclipboard("https://tiktok.com/@hellzone.store") NotifySuccess("Link Tiktok", "Copied to clipboard!") end })
+DevTab:CreateButton({ Name = "Tutor Tiktok", Callback = function() setclipboard("https://www.tiktok.com/@hellzone.store") NotifySuccess("Link Tiktok", "Copied to clipboard!") end })
 DevTab:CreateButton({ Name = "Instagram", Callback = function() setclipboard("https://instagram.com/hellzonestore/") NotifySuccess("Link Instagram", "Copied to clipboard!") end })
 DevTab:CreateButton({ Name = "GitHub", Callback = function() setclipboard("https://github.com/HellZone0/") NotifySuccess("Link GitHub", "Copied to clipboard!") end })
 
