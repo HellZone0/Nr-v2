@@ -38,11 +38,11 @@ local Buy_Rod = Window:CreateTab("Buy Rod", "cog")
 local Buy_Baits = Window:CreateTab("Buy Bait", "cog")
 local SettingsTab = Window:CreateTab("Settings", "cog")
 
-
 -- Remotes
 local net = ReplicatedStorage:WaitForChild("Packages"):WaitForChild("_Index"):WaitForChild("sleitnick_net@0.2.0"):WaitForChild("net")
 local rodRemote = net:WaitForChild("RF/ChargeFishingRod")
-local miniGameRemote = net:WaitForChild("RE/FishingMinigameStarted")
+-- Nama remote yang benar sesuai skrip Anda:
+local miniGameRemote = net:WaitForChild("RE/FishingMinigameStarted") 
 local finishRemote = net:WaitForChild("RE/FishingCompleted")
 local equipRemote = net:WaitForChild("RE/EquipToolFromHotbar")
 
@@ -84,8 +84,8 @@ local Replion = nil
 local ItemUtility = nil
 
 pcall(function()
-	Replion = require(ReplicatedStorage.Packages.Replion)
-	ItemUtility = require(ReplicatedStorage.Shared.ItemUtility)
+    Replion = require(ReplicatedStorage.Packages.Replion)
+    ItemUtility = require(ReplicatedStorage.Shared.ItemUtility)
 end)
 
 -- ====================================================================
@@ -145,115 +145,69 @@ Content = "Secara otomatis mem-favorit-kan ikan berharga agar tidak terjual."
 })
 
 local function startAutoFavourite()
-	task.spawn(function()
-		while featureState.AutoFavorite do
-			pcall(function()
-				if not Replion or not ItemUtility then return end
-				local DataReplion = Replion.Client:WaitReplion("Data")
-				local items = DataReplion and DataReplion:Get({"Inventory","Items"})
-				if type(items) ~= "table" then return end
-				
-				local allowedTiers = {}
-				for tier, isEnabled in pairs(favoriteRarities) do
-                    if isEnabled then
-                        allowedTiers[tier] = true
+    task.spawn(function()
+        while featureState.AutoFavorite do
+            pcall(function()
+                if not Replion or not ItemUtility then return end
+                local DataReplion = Replion.Client:WaitReplion("Data")
+                local items = DataReplion and DataReplion:Get({"Inventory","Items"})
+                if type(items) ~= "table" then return end
+                
+                local allowedTiers = {}
+                if favoriteRarities.Secret then allowedTiers.Secret = true end
+                if favoriteRarities.Mythic then allowedTiers.Mythic = true end
+                if favoriteRarities.Legendary then allowedTiers.Legendary = true end
+                if favoriteRarities.Epic then allowedTiers.Epic = true end
+
+                for _, item in ipairs(items) do
+                    local base = ItemUtility:GetItemData(item.Id)
+                    if base and base.Data and allowedTiers[base.Data.Tier] and not item.Favorited then
+                        item.Favorited = true
                     end
                 end
-
-				for _, item in ipairs(items) do
-					local base = ItemUtility:GetItemData(item.Id)
-					if base and base.Data and allowedTiers[base.Data.Tier] and not item.Favorited then
-						item.Favorited = true
-					end
-				end
-			end)
-			task.wait(5)
-		end
-	end)
+            end)
+            task.wait(5)
+        end
+    end)
 end
 
--- ====================================================================
---  SOLUSI BARU: TOMBOL UNTUK MEMBUKA JENDELA POP-UP DENGAN TOGGLE
--- ====================================================================
-local multiSelectWindow = nil
-local multiSelectButton = AutoSellFavoriteTab:CreateButton({
-    Name = "Pilih Kelangkaan Ikan",
-    Description = "Klik untuk memilih kelangkaan yang akan difavoritkan.",
-    Callback = function()
-        if multiSelectWindow and multiSelectWindow.Window then
-            multiSelectWindow.Window:Destroy()
-            multiSelectWindow = nil
-        end
-        
-        multiSelectWindow = Rayfield:CreateWindow({
-            Name = "Pilih Kelangkaan",
-            Title = "Pilih Kelangkaan Ikan",
-            Theme = "Dark",
-            Position = UDim2.new(0.5, 0, 0.5, 0), -- Tengah layar
-            Size = UDim2.new(0.2, 0, 0.4, 0),
-            ConfigurationSaving = false
-        })
-        
-        local function updateButtonName()
-            local count = 0
-            for _, isEnabled in pairs(favoriteRarities) do
-                if isEnabled then
-                    count = count + 1
-                end
-            end
-            if count > 0 then
-                multiSelectButton.Name = "Pilih Kelangkaan Ikan (" .. count .. " Dipilih)"
-            else
-                multiSelectButton.Name = "Pilih Kelangkaan Ikan"
-            end
-        end
-
-        multiSelectWindow:CreateToggle({
-            Name = "Secret",
-            CurrentValue = favoriteRarities.Secret,
-            Flag = "FavoriteSecret",
-            Callback = function(value)
-                favoriteRarities.Secret = value
-                NotifySuccess("Kelangkaan Dipilih", "Secret: " .. tostring(value))
-                updateButtonName()
-            end
-        })
-        multiSelectWindow:CreateToggle({
-            Name = "Mythic",
-            CurrentValue = favoriteRarities.Mythic,
-            Flag = "FavoriteMythic",
-            Callback = function(value)
-                favoriteRarities.Mythic = value
-                NotifySuccess("Kelangkaan Dipilih", "Mythic: " .. tostring(value))
-                updateButtonName()
-            end
-        })
-        multiSelectWindow:CreateToggle({
-            Name = "Legendary",
-            CurrentValue = favoriteRarities.Legendary,
-            Flag = "FavoriteLegendary",
-            Callback = function(value)
-                favoriteRarities.Legendary = value
-                NotifySuccess("Kelangkaan Dipilih", "Legendary: " .. tostring(value))
-                updateButtonName()
-            end
-        })
-        multiSelectWindow:CreateToggle({
-            Name = "Epic",
-            CurrentValue = favoriteRarities.Epic,
-            Flag = "FavoriteEpic",
-            Callback = function(value)
-                favoriteRarities.Epic = value
-                NotifySuccess("Kelangkaan Dipilih", "Epic: " .. tostring(value))
-                updateButtonName()
-            end
-        })
+AutoSellFavoriteTab:CreateSection("⭐ Pilih Kelangkaan Favorit")
+AutoSellFavoriteTab:CreateToggle({
+    Name = "Secret",
+    CurrentValue = false,
+    Flag = "FavoriteSecret",
+    Callback = function(value)
+        favoriteRarities.Secret = value
+        NotifySuccess("Kelangkaan Dipilih", "Secret: " .. tostring(value))
     end
 })
--- ====================================================================
---               AKHIR DARI SOLUSI BARU
--- ====================================================================
-
+AutoSellFavoriteTab:CreateToggle({
+    Name = "Mythic",
+    CurrentValue = false,
+    Flag = "FavoriteMythic",
+    Callback = function(value)
+        favoriteRarities.Mythic = value
+        NotifySuccess("Kelangkaan Dipilih", "Mythic: " .. tostring(value))
+    end
+})
+AutoSellFavoriteTab:CreateToggle({
+    Name = "Legendary",
+    CurrentValue = false,
+    Flag = "FavoriteLegendary",
+    Callback = function(value)
+        favoriteRarities.Legendary = value
+        NotifySuccess("Kelangkaan Dipilih", "Legendary: " .. tostring(value))
+    end
+})
+AutoSellFavoriteTab:CreateToggle({
+    Name = "Epic",
+    CurrentValue = false,
+    Flag = "FavoriteEpic",
+    Callback = function(value)
+        favoriteRarities.Epic = value
+        NotifySuccess("Kelangkaan Dipilih", "Epic: " .. tostring(value))
+    end
+})
 
 AutoSellFavoriteTab:CreateToggle({
 Name = "⭐ Enable Auto Favorite",
@@ -270,7 +224,6 @@ end
 end
 })
 
-
 -- ====================================================================
 --                      AKHIR DARI KODE AUTO SELL & FAVORITE
 -- ====================================================================
@@ -279,114 +232,67 @@ end
 --                      KODE UNTUK FITUR EVENT (Sudah Diperbaiki)
 -- ====================================================================
 
-local selectedEvent = "Megalodon Event" -- Nilai default
-local teleportPlatform = nil -- Variabel untuk menyimpan referensi papan transparan
+local selectedEvent = "Megalodon" -- Nilai default
+local autoTeleportEvent = false
 
 EventsTab:CreateSection("Teleport to Event")
 
 EventsTab:CreateDropdown({
-Name = "Select Event",
-Description = "Choose the event to teleport to.",
-Options = { "Megalodon Event", "Worm Hunt Event", "Ghost Shark Hunt Event" },
-CurrentOption = "Megalodon Event",
+Name = "Pilih Event",
+Description = "Pilih event untuk Teleport.",
+Options = { "Megalodon", "GoldenFish", "RainbowFish" }, -- Nama model di game
+CurrentOption = "Megalodon",
 Flag = "EventDropdown",
 Callback = function(option)
 selectedEvent = option
 end
 })
 
+local function teleportToEvent(eventModelName)
+    local eventModel = Workspace:FindFirstChild(eventModelName) or Workspace:FindFirstChild("Megalodon Hunt") or Workspace:FindFirstChild("Golden Fish Hunt") or Workspace:FindFirstChild("Rainbow Fish Hunt")
+
+    if eventModel and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        local hrp = LocalPlayer.Character.HumanoidRootPart
+        local eventPos = eventModel:GetPivot().Position
+        
+        -- Teleport 10 stud di atas posisi event
+        hrp.CFrame = CFrame.new(eventPos + Vector3.new(0, 10, 0))
+        
+        NotifySuccess("Teleport Berhasil", "Berhasil teleport ke Event '" .. eventModelName .. "'!")
+        return true
+    else
+        NotifyError("Event Tidak Ditemukan", "Event '" .. eventModelName .. "' saat ini tidak aktif atau modelnya tidak ditemukan.")
+        return false
+    end
+end
+
 EventsTab:CreateButton({
-Name = "Teleport to Event",
-Description = "Teleports you to the selected event location.",
+Name = "Teleport Manual",
+Description = "Teleport ke lokasi event yang dipilih secara manual.",
 Callback = function()
-if not LocalPlayer.Character or not LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-Rayfield:Notify({
-Title = "Error",
-Content = "Character not found. Please try again.",
-Duration = 5,
-Image = "x"
+    teleportToEvent(selectedEvent)
+end
 })
-return
-end
 
-local destination = nil
-local eventName = selectedEvent
-
-if eventName == "Megalodon Event" then
--- Koordinat baru untuk Megalodon Hunt
-destination = CFrame.new(412.70, 9.45, 4134.39) 
-elseif eventName == "Worm Hunt Event" then
--- Koordinat yang benar untuk Worm Hunt Event
-destination = CFrame.new(1565.37, 4.88, -64.07)
-elseif eventName == "Ghost Shark Hunt Event" then
--- Koordinat yang benar untuk Ghost Shark Hunt Event
-destination = CFrame.new(636.70, 3.63, 38909.87)
-end
-
-if destination then
--- Hancurkan papan sebelumnya jika ada
-if teleportPlatform and teleportPlatform.Parent then
-teleportPlatform:Destroy()
-end
-
-LocalPlayer.Character.HumanoidRootPart.CFrame = destination
-
--- Gunakan Raycast untuk menemukan permukaan di bawah
-local origin = destination.Position
-local direction = Vector3.new(0, -500, 0) -- Tembak ke bawah sejauh 500 stud
-local raycastParams = RaycastParams.new()
-raycastParams.FilterDescendantsInstances = {LocalPlayer.Character}
-raycastParams.FilterType = Enum.RaycastFilterType.Exclude
-
-local result = Workspace:Raycast(origin, direction, raycastParams)
-
-local platformPosition
-if result then
--- Atur posisi papan tepat di atas permukaan yang terdeteksi
-platformPosition = result.Position + Vector3.new(0, 0.5, 0)
-else
--- Jika Raycast tidak mendeteksi apapun, gunakan posisi default yang rendah
-platformPosition = destination.Position + Vector3.new(0, -5, 0)
-end
-
--- Buat papan transparan
-teleportPlatform = Instance.new("Part")
-teleportPlatform.Name = "TemporaryTeleportPlatform"
-teleportPlatform.Size = Vector3.new(20, 1, 20)
-teleportPlatform.CFrame = CFrame.new(platformPosition)
-teleportPlatform.Transparency = 1
-teleportPlatform.CanCollide = true
-teleportPlatform.Anchored = true
-teleportPlatform.Parent = Workspace
-
--- Loop untuk menghancurkan papan ketika player bergerak menjauh
-task.spawn(function()
-local initialPosition = LocalPlayer.Character.HumanoidRootPart.Position
-while task.wait(0.5) and teleportPlatform and teleportPlatform.Parent do
-local currentPosition = LocalPlayer.Character.HumanoidRootPart.Position
-if (currentPosition - initialPosition).Magnitude > 50 then
-teleportPlatform:Destroy()
-teleportPlatform = nil
-break
-end
-end
-end)
-
-Rayfield:Notify({
-Title = "Success!",
-Content = "Teleported to " .. eventName,
-Duration = 5,
-Image = "circle-check"
-})
-else
-Rayfield:Notify({
-Title = "Error",
-Content = "Event location not defined.",
-Duration = 5,
-Image = "x"
-})
-end
-end
+EventsTab:CreateToggle({
+    Name = "Auto Teleport to Event",
+    Description = "Otomatis teleport ke event yang dipilih saat aktif.",
+    CurrentValue = false,
+    Flag = "AutoTeleportEvent",
+    Callback = function(value)
+        autoTeleportEvent = value
+        if value then
+            NotifySuccess("Auto Teleport Aktif", "Skrip akan mencari event dan teleport otomatis.")
+            task.spawn(function()
+                while autoTeleportEvent do
+                    teleportToEvent(selectedEvent)
+                    task.wait(5) -- Cek setiap 5 detik
+                end
+            end)
+        else
+            NotifyError("Auto Teleport Nonaktif", "Fitur auto teleport telah dimatikan.")
+        end
+    end
 })
 
 -- ====================================================================
@@ -586,7 +492,6 @@ while autoBuyWeather do
 for _, w in ipairs(weathers) do
 pcall(function()
 ReplicatedStorage.Packages._Index["sleitnick_net@0.2.0"].net["RF/PurchaseWeatherEvent"]:InvokeServer(w.Name)
-
 end)
 task.wait(1.5) -- jeda antar pembelian
 end
@@ -656,7 +561,6 @@ end)
 end
 })
 end
-
 
 -- Toggle logic
 local blockUpdateOxygen = false
@@ -731,7 +635,6 @@ PlayerTab:CreateToggle({
 -- ====================================================================
 --                      AKHIR DARI Anti AFK Module
 -- ====================================================================
-
 
 -- Hook FireServer
 local oldNamecall
@@ -861,7 +764,7 @@ local islandCoords = {
 ["08"] = { name = "Kohana", position = Vector3.new(-658, 3, 719) },
 ["09"] = { name = "Winter Fest", position = Vector3.new(1611, 4, 3280) },
 ["10"] = { name = "Isoteric Island", position = Vector3.new(1987, 4, 1400) },
-["11"] = { name = "Lost Isle", position = Vector3.new(-3670.30078125, -113.00000762939453, -1128.0589599609375)},
+["11"] = { name = "Lost Isle", position = Vector3.new(-3670.30078125, -113.00000762939453, -1128.058959375)},
 ["12"] = { name = "Lost Isle [Lost Shore]", position = Vector3.new(-3697, 97, -932)},
 ["13"] = { name = "Lost Isle [Sisyphus]", position = Vector3.new(-3719.850830078125, -113.00000762939453, -958.6303100585938)},
 ["14"] = { name = "Lost Isle [Treasure Hall]", position = Vector3.new(-3652, -298.25, -1469)},
