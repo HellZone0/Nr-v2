@@ -8,6 +8,9 @@ local HttpService = game:GetService("HttpService")
 local TeleportService = game:GetService("TeleportService")
 local Lighting = game:GetService("Lighting")
 
+-- Mengubah teks watermark Rayfield sebelum memuatnya
+getgenv().Rayfield = { Config = { Watermark = "Teks Baru Anda" } }
+
 -- Load Rayfield
 local Rayfield = loadstring(game:HttpGet("https://raw.githubusercontent.com/SiriusSoftwareLtd/Rayfield/main/source.lua"))()
 
@@ -16,7 +19,7 @@ local Window = Rayfield:CreateWindow({
 Name = "Fish It Script | HellZone",
 LoadingTitle = "Fish It",
 LoadingSubtitle = "by @HellZone",
-Theme = "Blue",
+Theme = "Ocean",
 ConfigurationSaving = {
 Enabled = true,
 FolderName = "HellZone",
@@ -37,7 +40,6 @@ local Buy_Weather = Window:CreateTab("Buy Weather", "cog")
 local Buy_Rod = Window:CreateTab("Buy Rod", "cog")
 local Buy_Baits = Window:CreateTab("Buy Bait", "cog")
 local SettingsTab = Window:CreateTab("Settings", "cog")
-
 
 -- Remotes
 local net = ReplicatedStorage:WaitForChild("Packages"):WaitForChild("_Index"):WaitForChild("sleitnick_net@0.2.0"):WaitForChild("net")
@@ -77,10 +79,21 @@ Rayfield:Notify({ Title = title, Content = message, Duration = 3, Image = "ban" 
 end
 
 -- ====================================================================
---                      FAVORITE FISH SECTION
+--                      DEPENDENSI BARU UNTUK AUTO FAVORITE
 -- ====================================================================
 
-AutoSellFavoriteTab:CreateSection("Auto Sell & Favorite Settings")
+local Replion = nil
+local ItemUtility = nil
+
+pcall(function()
+    Replion = require(ReplicatedStorage.Packages.Replion)
+    ItemUtility = require(ReplicatedStorage.Shared.ItemUtility)
+end)
+
+-- ====================================================================
+--                      KODE BARU AUTO SELL & FAVORITE
+-- ====================================================================
+AutoSellFavoriteTab:CreateSection("🛒 Auto Sell (Teleport ke Alex)")
 
 AutoSellFavoriteTab:CreateToggle({
 Name = "🛒 Auto Sell (Teleport ke Alex)",
@@ -108,7 +121,7 @@ featureState.AutoSell = false
 return
 end
 
-local originalCFrame = LocalPlayer.Character.HumanoidRootPart.CFrame
+local originalCframe = LocalPlayer.Character.HumanoidRootPart.CFrame
 local npcPosition = alexNpc.WorldPivot.Position
 
 LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(npcPosition)
@@ -125,6 +138,40 @@ end)
 end
 end
 })
+
+AutoSellFavoriteTab:CreateSection("⭐ Auto Favorite System")
+
+AutoSellFavoriteTab:CreateParagraph({
+Title = "Auto Favorite Protection",
+Content = "Secara otomatis mem-favorit-kan ikan berharga agar tidak terjual."
+})
+
+local function startAutoFavourite()
+    task.spawn(function()
+        while featureState.AutoFavorite do
+            pcall(function()
+                if not Replion or not ItemUtility then return end
+                local DataReplion = Replion.Client:WaitReplion("Data")
+                local items = DataReplion and DataReplion:Get({"Inventory","Items"})
+                if type(items) ~= "table" then return end
+                
+                local allowedTiers = {}
+                if favoriteRarities.Secret then allowedTiers.Secret = true end
+                if favoriteRarities.Mythic then allowedTiers.Mythic = true end
+                if favoriteRarities.Legendary then allowedTiers.Legendary = true end
+                if favoriteRarities.Epic then allowedTiers.Epic = true end
+
+                for _, item in ipairs(items) do
+                    local base = ItemUtility:GetItemData(item.Id)
+                    if base and base.Data and allowedTiers[base.Data.Tier] and not item.Favorited then
+                        item.Favorited = true
+                    end
+                end
+            end)
+            task.wait(5)
+        end
+    end)
+end
 
 AutoSellFavoriteTab:CreateSection("⭐ Pilih Kelangkaan Favorit")
 AutoSellFavoriteTab:CreateToggle({
@@ -171,35 +218,17 @@ Flag = "AutoFavorite",
 Callback = function(value)
 featureState.AutoFavorite = value
 if value then
-Rayfield:Notify({
-Title = "Fitur Auto Favorite Diaktifkan",
-Content = "Fitur ini hanya akan berfungsi jika Anda memiliki 'remote' yang sesuai.",
-Duration = 5,
-Image = "circle-check"
-})
-task.spawn(function()
-while featureState.AutoFavorite do
-    -- Ini adalah placeholder.
-    -- Di sini Anda akan menambahkan logika untuk favorit
-    -- menggunakan 'remote' game jika Anda menemukannya.
-    -- Contoh: net:WaitForChild("RF/FavoriteFish"):InvokeServer(selectedFavoriteRarity)
-    -- Tanpa remote ini, fitur tidak akan berfungsi.
-    task.wait(5)
-end
-end)
+startAutoFavourite()
+NotifySuccess("Auto Favorite", "Auto Favorite diaktifkan!")
 else
-Rayfield:Notify({
-Title = "Fitur Auto Favorite Dinonaktifkan",
-Content = "Auto Favorite telah dimatikan.",
-Duration = 5,
-Image = "x"
-})
+NotifyError("Auto Favorite", "Auto Favorite dinonaktifkan.")
 end
 end
 })
 
+
 -- ====================================================================
---                      END OF AUTO SELL & FAVORITE SECTION
+--                      AKHIR DARI KODE AUTO SELL & FAVORITE
 -- ====================================================================
 
 -- ====================================================================
@@ -555,30 +584,63 @@ Duration = 3,
 end,
 })
 
--- Anti-AFK Feature (Updated)
-PlayerTab:CreateToggle({
-Name = "Anti-AFK",
-CurrentValue = false,
-Flag = "Anti-AFK",
-Callback = function(value)
-    antiAfkEnabled = value
-    if value then
-        NotifySuccess("Anti-AFK Aktif", "Mensimulasikan gerakan untuk menghindari kick.")
-        task.spawn(function()
-            while antiAfkEnabled do
-                local hum = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-                if hum then
-                    -- Mensimulasikan lompatan tanpa bergerak
-                    hum:ChangeState(Enum.HumanoidStateType.Jumping)
-                end
-                task.wait(5)
-            end
-        end)
-    else
-        NotifyError("Anti-AFK Nonaktif", "Fitur anti-AFK telah dimatikan.")
+-- ====================================================================
+--                      Anti AFK Module (Final Version)
+-- ====================================================================
+local AntiAFK = {}
+AntiAFK.Enabled = false
+AntiAFK.Interval = 60 -- detik
+AntiAFK._connection = nil
+local vu = game:GetService("VirtualUser")
+
+local function doAction()
+    pcall(function()
+        vu:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+        task.wait(0.1)
+        vu:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+    end)
+end
+
+function AntiAFK:Start()
+    if self.Enabled then return end
+    self.Enabled = true
+    self._connection = game:GetService("Players").LocalPlayer.Idled:Connect(doAction)
+    task.spawn(function()
+        while self.Enabled do
+            doAction()
+            task.wait(self.Interval)
+        end
+    end)
+end
+
+function AntiAFK:Stop()
+    if not self.Enabled then return end
+    self.Enabled = false
+    if self._connection then
+        self._connection:Disconnect()
+        self._connection = nil
     end
 end
+
+-- 🔹 Toggle UI untuk Anti AFK
+PlayerTab:CreateToggle({
+    Name = "Anti AFK",
+    CurrentValue = false,
+    Flag = "AntiAFK",
+    Callback = function(value)
+        if value then
+            AntiAFK:Start()
+            NotifySuccess("Anti AFK Aktif", "Fitur anti-AFK telah diaktifkan dengan aman.")
+        else
+            AntiAFK:Stop()
+            NotifyError("Anti AFK Nonaktif", "Fitur anti-AFK telah dimatikan.")
+        end
+    end
 })
+-- ====================================================================
+--                      AKHIR DARI Anti AFK Module
+-- ====================================================================
+
 
 -- Hook FireServer
 local oldNamecall
