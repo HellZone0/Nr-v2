@@ -8,23 +8,26 @@ local HttpService = game:GetService("HttpService")
 local TeleportService = game:GetService("TeleportService")
 local Lighting = game:GetService("Lighting")
 
+-- Mengubah teks watermark Rayfield sebelum memuatnya
+getgenv().Rayfield = { Config = { Watermark = "Teks Baru Anda" } }
+
 -- Load Rayfield
 local Rayfield = loadstring(game:HttpGet("https://raw.githubusercontent.com/SiriusSoftwareLtd/Rayfield/main/source.lua"))()
 
--- Window
+-- Mengubah Rayfield.ShowText dan Icon
 local Window = Rayfield:CreateWindow({
-Name = "Fish It Script | HellZone",
-LoadingTitle = "Fish It",
-LoadingSubtitle = "by @HellZone",
-Theme = "Ocean",
-ConfigurationSaving = {
-Enabled = true,
-FolderName = "HellZone",
-FileName = "FishIt"
-},
-KeySystem = false,
-ShowText = "Menu", -- Teks yang ditampilkan pada tombol
-Icon = "fish" -- Ikon yang ditampilkan
+	Name = "Fish It Script | HellZone",
+	LoadingTitle = "Fish It",
+	LoadingSubtitle = "by @HellZone",
+	Theme = "Ocean",
+	ConfigurationSaving = {
+		Enabled = true,
+		FolderName = "HellZone",
+		FileName = "FishIt"
+	},
+	KeySystem = false,
+	ShowText = "Menu", -- Teks yang akan ditampilkan
+	Icon = "fish", -- Ikon yang akan ditampilkan (gunakan nama ikon dari Lucide)
 })
 
 -- Tabs
@@ -43,8 +46,7 @@ local SettingsTab = Window:CreateTab("Settings", "cog")
 -- Remotes
 local net = ReplicatedStorage:WaitForChild("Packages"):WaitForChild("_Index"):WaitForChild("sleitnick_net@0.2.0"):WaitForChild("net")
 local rodRemote = net:WaitForChild("RF/ChargeFishingRod")
--- Nama remote yang benar sesuai skrip Anda:
-local miniGameRemote = net:WaitForChild("RE/FishingMinigameStarted") 
+local miniGameRemote = net:WaitForChild("RF/RequestFishingMinigameStarted")
 local finishRemote = net:WaitForChild("RE/FishingCompleted")
 local equipRemote = net:WaitForChild("RE/EquipToolFromHotbar")
 
@@ -310,13 +312,13 @@ EventsTab:CreateToggle({
 
 -- Developer Info
 DevTab:CreateParagraph({
-Title = "HyRexxyy Script",
-Content = "Thanks for using this script!\n\nDont forget to follow me on my social platform\nDeveloper:\n- Tiktok: tiktok.com/hyrexxyy\n- Instagram: @hyrexxyy\n- GitHub: github.com/hyrexxyy\n\nKeep supporting!"
+Title = "HellZone Script",
+Content = "Thanks for using this script!\n\nDont forget to follow me on my social platform\nDeveloper:\n- Tiktok: tiktok.com/hellzone.store\n- Instagram: @hellzonestore\n- GitHub: github.com/HellZone0\n\nKeep supporting!"
 })
 
-DevTab:CreateButton({ Name = "Tutor Tiktok", Callback = function() setclipboard("https://tiktok.com/") NotifySuccess("Link Tiktok", "Copied to clipboard!") end })
-DevTab:CreateButton({ Name = "Instagram", Callback = function() setclipboard("https://instagram.com/") NotifySuccess("Link Instagram", "Copied to clipboard!") end })
-DevTab:CreateButton({ Name = "GitHub", Callback = function() setclipboard("https://github.com/") NotifySuccess("Link GitHub", "Copied to clipboard!") end })
+DevTab:CreateButton({ Name = "Tutor Tiktok", Callback = function() setclipboard("https://tiktok.com/@hellzone.store") NotifySuccess("Link Tiktok", "Copied to clipboard!") end })
+DevTab:CreateButton({ Name = "Instagram", Callback = function() setclipboard("https://instagram.com/hellzonestore/") NotifySuccess("Link Instagram", "Copied to clipboard!") end })
+DevTab:CreateButton({ Name = "GitHub", Callback = function() setclipboard("https://github.com/HellZone0/") NotifySuccess("Link GitHub", "Copied to clipboard!") end })
 
 -- MainTab (Auto Fish)
 MainTab:CreateParagraph({
@@ -703,7 +705,7 @@ Duration = 3,
 Image = 4483362458
 })
 else
-NotifyError({
+Rayfield:Notify({
 Title = "Error",
 Content = "NPC or Character not found.",
 Duration = 3,
@@ -728,7 +730,7 @@ Duration = 3,
 Image = 4483362458
 })
 else
-NotifyError({
+Rayfield:Notify({
 Title = "Error",
 Content = "Weather Machine or Character not found.",
 Duration = 3,
@@ -904,3 +906,5 @@ end
 -- Memaksa efek "Luck Bait"
 local bait = require(game:GetService("ReplicatedStorage").Baits["Luck Bait"])
 bait.Luck = 999999999
+
+
