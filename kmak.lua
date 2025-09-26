@@ -107,7 +107,7 @@ featureState.AutoSell = false
 return
 end
 
-local originalCframe = LocalPlayer.Character.HumanoidRootPart.CFrame
+local originalCFrame = LocalPlayer.Character.HumanoidRootPart.CFrame
 local npcPosition = alexNpc.WorldPivot.Position
 
 LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(npcPosition)
@@ -116,7 +116,7 @@ task.wait(1)
 net:WaitForChild("RF/SellAllItems"):InvokeServer()
 task.wait(1)
 
-LocalPlayer.Character.HumanoidRootPart.CFrame = originalCframe
+LocalPlayer.Character.HumanoidRootPart.CFrame = originalCFrame
 end)
 task.wait(20)
 end
@@ -630,26 +630,28 @@ LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
 end
 end)
 
----
-### Sistem Anti-AFK Baru (Klik Layar)
----
+-- Anti-AFK Feature (Updated)
 PlayerTab:CreateToggle({
-Name = "Anti-AFK (Klik Layar)",
+Name = "Anti-AFK",
 CurrentValue = false,
 Flag = "Anti-AFK",
 Callback = function(value)
 antiAfkEnabled = value
 if value then
-NotifySuccess("Anti-AFK Aktif", "Mensimulasikan klik layar untuk menghindari kick.")
+NotifySuccess("Anti-AFK Aktif", "Mensimulasikan gerakan untuk menghindari kick.")
 task.spawn(function()
 while antiAfkEnabled do
-pcall(function()
--- Simulasi klik pada posisi acak di layar
-local x = math.random(1, UserInputService.ViewportSize.X)
-local y = math.random(1, UserInputService.ViewportSize.Y)
-UserInputService:SimulateMouseClick(Vector2.new(x, y))
-end)
-task.wait(15) -- Tunggu 15 detik sebelum klik berikutnya
+local hum = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+if hum and hrp then
+-- Pilih posisi acak yang sedikit berbeda dari posisi saat ini
+local currentPos = hrp.Position
+local randomOffset = Vector3.new(math.random(-5, 5), 0, math.random(-5, 5))
+local newPos = currentPos + randomOffset
+hum:MoveTo(newPos)
+hum.MoveToFinished:Wait(5)
+end
+task.wait(5)
 end
 end)
 else
