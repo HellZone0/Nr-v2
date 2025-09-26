@@ -8,32 +8,30 @@ local HttpService = game:GetService("HttpService")
 local TeleportService = game:GetService("TeleportService")
 local Lighting = game:GetService("Lighting")
 
--- Mengubah teks watermark Rayfield sebelum memuatnya
-getgenv().Rayfield = { Config = { Watermark = "Teks Baru Anda" } }
-
 -- Load Rayfield
 local Rayfield = loadstring(game:HttpGet("https://raw.githubusercontent.com/SiriusSoftwareLtd/Rayfield/main/source.lua"))()
 
--- Mengubah Rayfield.ShowText dan Icon
+-- Window
+-- Kustomisasi tombol menu utama di sini
 local Window = Rayfield:CreateWindow({
-	Name = "Fish It Script | HellZone",
-	LoadingTitle = "Fish It",
-	LoadingSubtitle = "by @HellZone",
-	Theme = "Ocean",
-	ConfigurationSaving = {
-		Enabled = true,
-		FolderName = "HellZone",
-		FileName = "FishIt"
-	},
-	KeySystem = false,
-	ShowText = "HellZone Menu", -- Teks yang akan ditampilkan
-	Icon = "fish", -- Ikon yang akan ditampilkan (gunakan nama ikon dari Lucide)
+Name = "Fish It Script | HellZone",
+LoadingTitle = "Fish It",
+LoadingSubtitle = "by @HellZone",
+Theme = "Ocean",
+ConfigurationSaving = {
+Enabled = true,
+FolderName = "HellZone",
+FileName = "FishIt"
+},
+KeySystem = false,
+ShowText = "Buka Menu", -- Teks untuk tombol menu
+Icon = "fish" -- Ikon untuk tombol menu
 })
 
 -- Tabs
 local DevTab = Window:CreateTab("Developer", "airplay")
 local MainTab = Window:CreateTab("Auto Fish", "fish")
-local AutoSellFavoriteTab = Window:CreateTab("Auto Sell & Favorite", "star") 
+local AutoSellFavoriteTab = Window:CreateTab("Auto Sell & Favorite", "star") 
 local PlayerTab = Window:CreateTab("Player", "users-round")
 local IslandsTab = Window:CreateTab("Islands", "map")
 local EventsTab = Window:CreateTab("Events", "alarm-clock")
@@ -42,6 +40,8 @@ local Buy_Weather = Window:CreateTab("Buy Weather", "cog")
 local Buy_Rod = Window:CreateTab("Buy Rod", "cog")
 local Buy_Baits = Window:CreateTab("Buy Bait", "cog")
 local SettingsTab = Window:CreateTab("Settings", "cog")
+-- Tambahkan tab kustomisasi baru
+local CustomizeTab = Window:CreateTab("Customize", "paint-brush")
 
 -- Remotes
 local net = ReplicatedStorage:WaitForChild("Packages"):WaitForChild("_Index"):WaitForChild("sleitnick_net@0.2.0"):WaitForChild("net")
@@ -63,10 +63,10 @@ AutoFavorite = false
 
 -- New state for multi-favorite
 local favoriteRarities = {
-    Secret = false,
-    Mythic = false,
-    Legendary = false,
-    Epic = false
+    Secret = false,
+    Mythic = false,
+    Legendary = false,
+    Epic = false
 }
 
 -- State for Anti-AFK
@@ -81,19 +81,19 @@ Rayfield:Notify({ Title = title, Content = message, Duration = 3, Image = "ban" 
 end
 
 -- ====================================================================
---                      DEPENDENSI BARU UNTUK AUTO FAVORITE
+--                      DEPENDENSI BARU UNTUK AUTO FAVORITE
 -- ====================================================================
 
 local Replion = nil
 local ItemUtility = nil
 
 pcall(function()
-    Replion = require(ReplicatedStorage.Packages.Replion)
-    ItemUtility = require(ReplicatedStorage.Shared.ItemUtility)
+    Replion = require(ReplicatedStorage.Packages.Replion)
+    ItemUtility = require(ReplicatedStorage.Shared.ItemUtility)
 end)
 
 -- ====================================================================
---                      KODE BARU AUTO SELL & FAVORITE
+--                      KODE BARU AUTO SELL & FAVORITE
 -- ====================================================================
 AutoSellFavoriteTab:CreateSection("🛒 Auto Sell (Teleport ke Alex)")
 
@@ -149,68 +149,68 @@ Content = "Secara otomatis mem-favorit-kan ikan berharga agar tidak terjual."
 })
 
 local function startAutoFavourite()
-    task.spawn(function()
-        while featureState.AutoFavorite do
-            pcall(function()
-                if not Replion or not ItemUtility then return end
-                local DataReplion = Replion.Client:WaitReplion("Data")
-                local items = DataReplion and DataReplion:Get({"Inventory","Items"})
-                if type(items) ~= "table" then return end
-                
-                local allowedTiers = {}
-                if favoriteRarities.Secret then allowedTiers.Secret = true end
-                if favoriteRarities.Mythic then allowedTiers.Mythic = true end
-                if favoriteRarities.Legendary then allowedTiers.Legendary = true end
-                if favoriteRarities.Epic then allowedTiers.Epic = true end
+    task.spawn(function()
+        while featureState.AutoFavorite do
+            pcall(function()
+                if not Replion or not ItemUtility then return end
+                local DataReplion = Replion.Client:WaitReplion("Data")
+                local items = DataReplion and DataReplion:Get({"Inventory","Items"})
+                if type(items) ~= "table" then return end
+                
+                local allowedTiers = {}
+                if favoriteRarities.Secret then allowedTiers.Secret = true end
+                if favoriteRarities.Mythic then allowedTiers.Mythic = true end
+                if favoriteRarities.Legendary then allowedTiers.Legendary = true end
+                if favoriteRarities.Epic then allowedTiers.Epic = true end
 
-                for _, item in ipairs(items) do
-                    local base = ItemUtility:GetItemData(item.Id)
-                    if base and base.Data and allowedTiers[base.Data.Tier] and not item.Favorited then
-                        item.Favorited = true
-                    end
-                end
-            end)
-            task.wait(5)
-        end
-    end)
+                for _, item in ipairs(items) do
+                    local base = ItemUtility:GetItemData(item.Id)
+                    if base and base.Data and allowedTiers[base.Data.Tier] and not item.Favorited then
+                        item.Favorited = true
+                    end
+                end
+            end)
+            task.wait(5)
+        end
+    end)
 end
 
 AutoSellFavoriteTab:CreateSection("⭐ Pilih Kelangkaan Favorit")
 AutoSellFavoriteTab:CreateToggle({
-    Name = "Secret",
-    CurrentValue = false,
-    Flag = "FavoriteSecret",
-    Callback = function(value)
-        favoriteRarities.Secret = value
-        NotifySuccess("Kelangkaan Dipilih", "Secret: " .. tostring(value))
-    end
+    Name = "Secret",
+    CurrentValue = false,
+    Flag = "FavoriteSecret",
+    Callback = function(value)
+        favoriteRarities.Secret = value
+        NotifySuccess("Kelangkaan Dipilih", "Secret: " .. tostring(value))
+    end
 })
 AutoSellFavoriteTab:CreateToggle({
-    Name = "Mythic",
-    CurrentValue = false,
-    Flag = "FavoriteMythic",
-    Callback = function(value)
-        favoriteRarities.Mythic = value
-        NotifySuccess("Kelangkaan Dipilih", "Mythic: " .. tostring(value))
-    end
+    Name = "Mythic",
+    CurrentValue = false,
+    Flag = "FavoriteMythic",
+    Callback = function(value)
+        favoriteRarities.Mythic = value
+        NotifySuccess("Kelangkaan Dipilih", "Mythic: " .. tostring(value))
+    end
 })
 AutoSellFavoriteTab:CreateToggle({
-    Name = "Legendary",
-    CurrentValue = false,
-    Flag = "FavoriteLegendary",
-    Callback = function(value)
-        favoriteRarities.Legendary = value
-        NotifySuccess("Kelangkaan Dipilih", "Legendary: " .. tostring(value))
-    end
+    Name = "Legendary",
+    CurrentValue = false,
+    Flag = "FavoriteLegendary",
+    Callback = function(value)
+        favoriteRarities.Legendary = value
+        NotifySuccess("Kelangkaan Dipilih", "Legendary: " .. tostring(value))
+    end
 })
 AutoSellFavoriteTab:CreateToggle({
-    Name = "Epic",
-    CurrentValue = false,
-    Flag = "FavoriteEpic",
-    Callback = function(value)
-        favoriteRarities.Epic = value
-        NotifySuccess("Kelangkaan Dipilih", "Epic: " .. tostring(value))
-    end
+    Name = "Epic",
+    CurrentValue = false,
+    Flag = "FavoriteEpic",
+    Callback = function(value)
+        favoriteRarities.Epic = value
+        NotifySuccess("Kelangkaan Dipilih", "Epic: " .. tostring(value))
+    end
 })
 
 AutoSellFavoriteTab:CreateToggle({
@@ -230,11 +230,11 @@ end
 
 
 -- ====================================================================
---                      AKHIR DARI KODE AUTO SELL & FAVORITE
+--                      AKHIR DARI KODE AUTO SELL & FAVORITE
 -- ====================================================================
 
 -- ====================================================================
---                      KODE UNTUK FITUR EVENT (Sudah Diperbaiki)
+--                      KODE UNTUK FITUR EVENT (Sudah Diperbaiki)
 -- ====================================================================
 
 local selectedEvent = "Megalodon" -- Nilai default
@@ -254,54 +254,54 @@ end
 })
 
 local function teleportToEvent(eventModelName)
-    local eventModel = Workspace:FindFirstChild(eventModelName) or Workspace:FindFirstChild("Megalodon Hunt") or Workspace:FindFirstChild("Golden Fish Hunt") or Workspace:FindFirstChild("Rainbow Fish Hunt")
+    local eventModel = Workspace:FindFirstChild(eventModelName) or Workspace:FindFirstChild("Megalodon Hunt") or Workspace:FindFirstChild("Golden Fish Hunt") or Workspace:FindFirstChild("Rainbow Fish Hunt")
 
-    if eventModel and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-        local hrp = LocalPlayer.Character.HumanoidRootPart
-        local eventPos = eventModel:GetPivot().Position
-        
-        -- Teleport 10 stud di atas posisi event
-        hrp.CFrame = CFrame.new(eventPos + Vector3.new(0, 10, 0))
-        
-        NotifySuccess("Teleport Berhasil", "Berhasil teleport ke Event '" .. eventModelName .. "'!")
-        return true
-    else
-        NotifyError("Event Tidak Ditemukan", "Event '" .. eventModelName .. "' saat ini tidak aktif atau modelnya tidak ditemukan.")
-        return false
-    end
+    if eventModel and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        local hrp = LocalPlayer.Character.HumanoidRootPart
+        local eventPos = eventModel:GetPivot().Position
+        
+        -- Teleport 10 stud di atas posisi event
+        hrp.CFrame = CFrame.new(eventPos + Vector3.new(0, 10, 0))
+        
+        NotifySuccess("Teleport Berhasil", "Berhasil teleport ke Event '" .. eventModelName .. "'!")
+        return true
+    else
+        NotifyError("Event Tidak Ditemukan", "Event '" .. eventModelName .. "' saat ini tidak aktif atau modelnya tidak ditemukan.")
+        return false
+    end
 end
 
 EventsTab:CreateButton({
 Name = "Teleport Manual",
 Description = "Teleport ke lokasi event yang dipilih secara manual.",
 Callback = function()
-    teleportToEvent(selectedEvent)
+    teleportToEvent(selectedEvent)
 end
 })
 
 EventsTab:CreateToggle({
-    Name = "Auto Teleport to Event",
-    Description = "Otomatis teleport ke event yang dipilih saat aktif.",
-    CurrentValue = false,
-    Flag = "AutoTeleportEvent",
-    Callback = function(value)
-        autoTeleportEvent = value
-        if value then
-            NotifySuccess("Auto Teleport Aktif", "Skrip akan mencari event dan teleport otomatis.")
-            task.spawn(function()
-                while autoTeleportEvent do
-                    teleportToEvent(selectedEvent)
-                    task.wait(5) -- Cek setiap 5 detik
-                end
-            end)
-        else
-            NotifyError("Auto Teleport Nonaktif", "Fitur auto teleport telah dimatikan.")
-        end
-    end
+    Name = "Auto Teleport to Event",
+    Description = "Otomatis teleport ke event yang dipilih saat aktif.",
+    CurrentValue = false,
+    Flag = "AutoTeleportEvent",
+    Callback = function(value)
+        autoTeleportEvent = value
+        if value then
+            NotifySuccess("Auto Teleport Aktif", "Skrip akan mencari event dan teleport otomatis.")
+            task.spawn(function()
+                while autoTeleportEvent do
+                    teleportToEvent(selectedEvent)
+                    task.wait(5) -- Cek setiap 5 detik
+                end
+            end)
+        else
+            NotifyError("Auto Teleport Nonaktif", "Fitur auto teleport telah dimatikan.")
+        end
+    end
 })
 
 -- ====================================================================
---                      AKHIR DARI KODE FITUR EVENT
+--                      AKHIR DARI KODE FITUR EVENT
 -- ====================================================================
 
 -- Developer Info
@@ -587,7 +587,7 @@ end,
 })
 
 -- ====================================================================
---                      Anti AFK Module (Final Version)
+--                      Anti AFK Module (Final Version)
 -- ====================================================================
 local AntiAFK = {}
 AntiAFK.Enabled = false
@@ -596,51 +596,51 @@ AntiAFK._connection = nil
 local vu = game:GetService("VirtualUser")
 
 local function doAction()
-    pcall(function()
-        vu:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
-        task.wait(0.1)
-        vu:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
-    end)
+    pcall(function()
+        vu:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+        task.wait(0.1)
+        vu:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+    end)
 end
 
 function AntiAFK:Start()
-    if self.Enabled then return end
-    self.Enabled = true
-    self._connection = game:GetService("Players").LocalPlayer.Idled:Connect(doAction)
-    task.spawn(function()
-        while self.Enabled do
-            doAction()
-            task.wait(self.Interval)
-        end
-    end)
+    if self.Enabled then return end
+    self.Enabled = true
+    self._connection = game:GetService("Players").LocalPlayer.Idled:Connect(doAction)
+    task.spawn(function()
+        while self.Enabled do
+            doAction()
+            task.wait(self.Interval)
+        end
+    end)
 end
 
 function AntiAFK:Stop()
-    if not self.Enabled then return end
-    self.Enabled = false
-    if self._connection then
-        self._connection:Disconnect()
-        self._connection = nil
-    end
+    if not self.Enabled then return end
+    self.Enabled = false
+    if self._connection then
+        self._connection:Disconnect()
+        self._connection = nil
+    end
 end
 
 -- 🔹 Toggle UI untuk Anti AFK
 PlayerTab:CreateToggle({
-    Name = "Anti AFK",
-    CurrentValue = false,
-    Flag = "AntiAFK",
-    Callback = function(value)
-        if value then
-            AntiAFK:Start()
-            NotifySuccess("Anti AFK Aktif", "Fitur anti-AFK telah diaktifkan dengan aman.")
-        else
-            AntiAFK:Stop()
-            NotifyError("Anti AFK Nonaktif", "Fitur anti-AFK telah dimatikan.")
-        end
-    end
+    Name = "Anti AFK",
+    CurrentValue = false,
+    Flag = "AntiAFK",
+    Callback = function(value)
+        if value then
+            AntiAFK:Start()
+            NotifySuccess("Anti AFK Aktif", "Fitur anti-AFK telah diaktifkan dengan aman.")
+        else
+            AntiAFK:Stop()
+            NotifyError("Anti AFK Nonaktif", "Fitur anti-AFK telah dimatikan.")
+        end
+    end
 })
 -- ====================================================================
---                      AKHIR DARI Anti AFK Module
+--                      AKHIR DARI Anti AFK Module
 -- ====================================================================
 
 
@@ -686,7 +686,7 @@ local shop_npcs = {
 
 for _, npc_data in ipairs(shop_npcs) do
 PlayerTab:CreateButton({
-Name = npc_data.Name,
+Name = "🛒 " .. npc_data.Name,
 Callback = function()
 local npc = game:GetService("ReplicatedStorage"):FindFirstChild("NPC"):FindFirstChild(npc_data.Path)
 local char = game:GetService("Players").LocalPlayer.Character
@@ -781,7 +781,7 @@ local islandCoords = {
 
 for _, data in pairs(islandCoords) do
 IslandsTab:CreateButton({
-Name = data.name,
+Name = "🏝️ " .. data.name,
 Callback = function()
 local char = Workspace.Characters:FindFirstChild(LocalPlayer.Name)
 local hrp = char and char:FindFirstChild("HumanoidRootPart")
@@ -793,58 +793,58 @@ NotifyError("Teleport Failed", "Character or HRP not found!")
 end
 end
 })
-end 
+end 
 
 -- Settings Tab
 SettingsTab:CreateSection("Performance & Settings")
 
 -- Fungsi untuk menemukan dan menonaktifkan instance
 local function findAndDisable(parent)
-    for _, child in ipairs(parent:GetChildren()) do
-        if child:IsA("ParticleEmitter") or child:IsA("Sound") or child:IsA("Decal") then
-            child.Enabled = false
-            if child:IsA("Sound") then
-                child:Stop()
-            end
-        end
-        pcall(function()
-            findAndDisable(child)
-        end)
-    end
+    for _, child in ipairs(parent:GetChildren()) do
+        if child:IsA("ParticleEmitter") or child:IsA("Sound") or child:IsA("Decal") then
+            child.Enabled = false
+            if child:IsA("Sound") then
+                child:Stop()
+            end
+        end
+        pcall(function()
+            findAndDisable(child)
+        end)
+    end
 end
 
 -- Fungsi utama untuk mengatur grafis
 local function setGraphics(enabled)
-    if enabled then
-        settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
-        Lighting.GlobalShadows = false
-        Lighting.FogEnd = 9e9
-        Lighting.Brightness = 0
-        Lighting.OutdoorAmbient = Color3.new(0,0,0)
-        Lighting.Ambient = Color3.new(0,0,0)
-        Lighting.Technology = Enum.Technology.Compatibility
+    if enabled then
+        settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+        Lighting.GlobalShadows = false
+        Lighting.FogEnd = 9e9
+        Lighting.Brightness = 0
+        Lighting.OutdoorAmbient = Color3.new(0,0,0)
+        Lighting.Ambient = Color3.new(0,0,0)
+        Lighting.Technology = Enum.Technology.Compatibility
 
-        pcall(function()
-            Lighting.Sky:Destroy()
-        end)
-        
-        -- Menonaktifkan efek partikel, suara, dan stiker
-        findAndDisable(Workspace)
-        findAndDisable(Lighting)
-        findAndDisable(ReplicatedStorage)
+        pcall(function()
+            Lighting.Sky:Destroy()
+        end)
+        
+        -- Menonaktifkan efek partikel, suara, dan stiker
+        findAndDisable(Workspace)
+        findAndDisable(Lighting)
+        findAndDisable(ReplicatedStorage)
 
-        Rayfield:Notify({ Title = "FPS Booster", Content = "FPS Booster diaktifkan! Banyak efek visual telah dinonaktifkan.", Duration = 5 })
-    else
-        settings().Rendering.QualityLevel = Enum.QualityLevel.Automatic
-        Lighting.GlobalShadows = true
-        Lighting.FogEnd = 50000
-        Lighting.Brightness = 2
-        Lighting.OutdoorAmbient = Color3.new(0.5, 0.5, 0.5)
-        Lighting.Ambient = Color3.new(0.5, 0.5, 0.5)
-        Lighting.Technology = Enum.Technology.ShadowMap
+        Rayfield:Notify({ Title = "FPS Booster", Content = "FPS Booster diaktifkan! Banyak efek visual telah dinonaktifkan.", Duration = 5 })
+    else
+        settings().Rendering.QualityLevel = Enum.QualityLevel.Automatic
+        Lighting.GlobalShadows = true
+        Lighting.FogEnd = 50000
+        Lighting.Brightness = 2
+        Lighting.OutdoorAmbient = Color3.new(0.5, 0.5, 0.5)
+        Lighting.Ambient = Color3.new(0.5, 0.5, 0.5)
+        Lighting.Technology = Enum.Technology.ShadowMap
 
-        Rayfield:Notify({ Title = "FPS Booster", Content = "FPS Booster dinonaktifkan! Mungkin perlu Rejoin untuk mengembalikan semua efek.", Duration = 5 })
-    end
+        Rayfield:Notify({ Title = "FPS Booster", Content = "FPS Booster dinonaktifkan! Mungkin perlu Rejoin untuk mengembalikan semua efek.", Duration = 5 })
+    end
 end
 
 SettingsTab:CreateToggle({
@@ -853,14 +853,14 @@ Description = "Mengurangi kualitas grafis & mematikan efek untuk meningkatkan FP
 CurrentValue = false,
 Flag = "FPSBooster",
 Callback = function(value)
-    setGraphics(value)
+    setGraphics(value)
 end
 })
 
 SettingsTab:CreateButton({ Name = "Rejoin Server", Callback = function() TeleportService:Teleport(game.PlaceId, LocalPlayer) end })
 SettingsTab:CreateButton({ Name = "Server Hop (New Server)", Callback = function()
 local placeId = game.PlaceId
-local servers, cursor = {}, ""
+local servers = {}, ""
 repeat
 local url = "https://games.roblox.com/v1/games/" .. placeId .. "/servers/Public?sortOrder=Asc&limit=100" .. (cursor ~= "" and "&cursor=" .. cursor or "")
 local success, result = pcall(function()
@@ -900,5 +900,3 @@ end
 -- Memaksa efek "Luck Bait"
 local bait = require(game:GetService("ReplicatedStorage").Baits["Luck Bait"])
 bait.Luck = 999999999
-
-
