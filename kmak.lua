@@ -77,10 +77,21 @@ Rayfield:Notify({ Title = title, Content = message, Duration = 3, Image = "ban" 
 end
 
 -- ====================================================================
---                      FAVORITE FISH SECTION
+--                      DEPENDENSI BARU UNTUK AUTO FAVORITE
 -- ====================================================================
 
-AutoSellFavoriteTab:CreateSection("Auto Sell & Favorite Settings")
+local Replion = nil
+local ItemUtility = nil
+
+pcall(function()
+	Replion = require(ReplicatedStorage.Packages.Replion)
+	ItemUtility = require(ReplicatedStorage.Shared.ItemUtility)
+end)
+
+-- ====================================================================
+--                      KODE BARU AUTO SELL & FAVORITE
+-- ====================================================================
+AutoSellFavoriteTab:CreateSection("🛒 Auto Sell (Teleport ke Alex)")
 
 AutoSellFavoriteTab:CreateToggle({
 Name = "🛒 Auto Sell (Teleport ke Alex)",
@@ -108,7 +119,7 @@ featureState.AutoSell = false
 return
 end
 
-local originalCFrame = LocalPlayer.Character.HumanoidRootPart.CFrame
+local originalCframe = LocalPlayer.Character.HumanoidRootPart.CFrame
 local npcPosition = alexNpc.WorldPivot.Position
 
 LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(npcPosition)
@@ -117,7 +128,7 @@ task.wait(1)
 net:WaitForChild("RF/SellAllItems"):InvokeServer()
 task.wait(1)
 
-LocalPlayer.Character.HumanoidRootPart.CFrame = originalCFrame
+LocalPlayer.Character.HumanoidRootPart.CFrame = originalCframe
 end)
 task.wait(20)
 end
@@ -125,6 +136,40 @@ end)
 end
 end
 })
+
+AutoSellFavoriteTab:CreateSection("⭐ Auto Favorite System")
+
+AutoSellFavoriteTab:CreateParagraph({
+Title = "Auto Favorite Protection",
+Content = "Secara otomatis mem-favorit-kan ikan berharga agar tidak terjual."
+})
+
+local function startAutoFavourite()
+	task.spawn(function()
+		while featureState.AutoFavorite do
+			pcall(function()
+				if not Replion or not ItemUtility then return end
+				local DataReplion = Replion.Client:WaitReplion("Data")
+				local items = DataReplion and DataReplion:Get({"Inventory","Items"})
+				if type(items) ~= "table" then return end
+				
+				local allowedTiers = {}
+				if favoriteRarities.Secret then allowedTiers.Secret = true end
+				if favoriteRarities.Mythic then allowedTiers.Mythic = true end
+				if favoriteRarities.Legendary then allowedTiers.Legendary = true end
+				if favoriteRarities.Epic then allowedTiers.Epic = true end
+
+				for _, item in ipairs(items) do
+					local base = ItemUtility:GetItemData(item.Id)
+					if base and base.Data and allowedTiers[base.Data.Tier] and not item.Favorited then
+						item.Favorited = true
+					end
+				end
+			end)
+			task.wait(5)
+		end
+	end)
+end
 
 AutoSellFavoriteTab:CreateSection("⭐ Pilih Kelangkaan Favorit")
 AutoSellFavoriteTab:CreateToggle({
@@ -171,35 +216,17 @@ Flag = "AutoFavorite",
 Callback = function(value)
 featureState.AutoFavorite = value
 if value then
-Rayfield:Notify({
-Title = "Fitur Auto Favorite Diaktifkan",
-Content = "Fitur ini hanya akan berfungsi jika Anda memiliki 'remote' yang sesuai.",
-Duration = 5,
-Image = "circle-check"
-})
-task.spawn(function()
-while featureState.AutoFavorite do
-    -- Ini adalah placeholder.
-    -- Di sini Anda akan menambahkan logika untuk favorit
-    -- menggunakan 'remote' game jika Anda menemukannya.
-    -- Contoh: net:WaitForChild("RF/FavoriteFish"):InvokeServer(selectedFavoriteRarity)
-    -- Tanpa remote ini, fitur tidak akan berfungsi.
-    task.wait(5)
-end
-end)
+startAutoFavourite()
+NotifySuccess("Auto Favorite", "Auto Favorite diaktifkan!")
 else
-Rayfield:Notify({
-Title = "Fitur Auto Favorite Dinonaktifkan",
-Content = "Auto Favorite telah dimatikan.",
-Duration = 5,
-Image = "x"
-})
+NotifyError("Auto Favorite", "Auto Favorite dinonaktifkan.")
 end
 end
 })
 
+
 -- ====================================================================
---                      END OF AUTO SELL & FAVORITE SECTION
+--                      AKHIR DARI KODE AUTO SELL & FAVORITE
 -- ====================================================================
 
 -- ====================================================================
