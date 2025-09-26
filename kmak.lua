@@ -8,25 +8,26 @@ local HttpService = game:GetService("HttpService")
 local TeleportService = game:GetService("TeleportService")
 local Lighting = game:GetService("Lighting")
 
+-- Mengubah teks watermark Rayfield sebelum memuatnya
+getgenv().Rayfield = { Config = { Watermark = "Teks Baru Anda" } }
+
 -- Load Rayfield
 local Rayfield = loadstring(game:HttpGet("https://raw.githubusercontent.com/SiriusSoftwareLtd/Rayfield/main/source.lua"))()
 
--- Window
--- Tampilan tombol menu yang diperbarui agar bisa digeser-geser
+-- Mengubah Rayfield.ShowText dan Icon
 local Window = Rayfield:CreateWindow({
-Name = "Fish It Script | HellZone",
-LoadingTitle = "Fish It",
-LoadingSubtitle = "by @HellZone",
-Theme = "Ocean",
-ConfigurationSaving = {
-Enabled = true,
-FolderName = "HellZone",
-FileName = "FishIt"
-},
-KeySystem = false,
--- Hapus ShowText agar hanya ikon yang ditampilkan
-Icon = "fishing-rod", -- Ikon yang akan ditampilkan
-ToggleUIKeybind = "K" -- Atur keybind untuk membuka/menutup menu
+	Name = "Fish It Script | HellZone",
+	LoadingTitle = "Fish It",
+	LoadingSubtitle = "by @HellZone",
+	Theme = "Ocean",
+	ConfigurationSaving = {
+		Enabled = true,
+		FolderName = "HellZone",
+		FileName = "FishIt"
+	},
+	KeySystem = false,
+	ShowText = "Menu", -- Teks yang akan ditampilkan
+	Icon = "fish", -- Ikon yang akan ditampilkan (gunakan nama ikon dari Lucide)
 })
 
 -- Tabs
@@ -45,8 +46,7 @@ local SettingsTab = Window:CreateTab("Settings", "cog")
 -- Remotes
 local net = ReplicatedStorage:WaitForChild("Packages"):WaitForChild("_Index"):WaitForChild("sleitnick_net@0.2.0"):WaitForChild("net")
 local rodRemote = net:WaitForChild("RF/ChargeFishingRod")
--- Perbaikan nama remote yang benar sesuai skrip Anda
-local miniGameRemote = net:WaitForChild("RE/FishingMinigameStarted")
+local miniGameRemote = net:WaitForChild("RF/RequestFishingMinigameStarted")
 local finishRemote = net:WaitForChild("RE/FishingCompleted")
 local equipRemote = net:WaitForChild("RE/EquipToolFromHotbar")
 
@@ -306,8 +306,8 @@ EventsTab:CreateToggle({
 
 -- Developer Info
 DevTab:CreateParagraph({
-Title = "HyRexxyy Script",
-Content = "Thanks for using this script!\n\nDont forget to follow me on my social platform\nDeveloper:\n- Tiktok: tiktok.com/hyrexxyy\n- Instagram: @hyrexxyy\n- GitHub: github.com/hyrexxyy\n\nKeep supporting!"
+Title = "HellZone Script",
+Content = "Thanks for using this script!\n\nDont forget to follow me on my social platform\nDeveloper:\n- Tiktok: tiktok.com/hellzone.store\n- Instagram: @hellzonestore\n- GitHub: github.com/HellZone0\n\nKeep supporting!"
 })
 
 DevTab:CreateButton({ Name = "Tutor Tiktok", Callback = function() setclipboard("https://tiktok.com/") NotifySuccess("Link Tiktok", "Copied to clipboard!") end })
@@ -587,7 +587,7 @@ end,
 })
 
 -- ====================================================================
---                     Anti AFK Module (Final Version)
+--                      Anti AFK Module (Final Version)
 -- ====================================================================
 local AntiAFK = {}
 AntiAFK.Enabled = false
@@ -640,7 +640,7 @@ PlayerTab:CreateToggle({
     end
 })
 -- ====================================================================
---                      AKHIR DARI Anti AFK Module
+--                      AKHIR DARI Anti AFK Module
 -- ====================================================================
 
 
@@ -793,7 +793,7 @@ NotifyError("Teleport Failed", "Character or HRP not found!")
 end
 end
 })
-end 
+end 
 
 -- Settings Tab
 SettingsTab:CreateSection("Performance & Settings")
@@ -900,3 +900,5 @@ end
 -- Memaksa efek "Luck Bait"
 local bait = require(game:GetService("ReplicatedStorage").Baits["Luck Bait"])
 bait.Luck = 999999999
+
+
