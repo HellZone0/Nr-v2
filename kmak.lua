@@ -19,7 +19,7 @@ local Window = Rayfield:CreateWindow({
 Name = "Fish It Script | HellZone",
 LoadingTitle = "Fish It",
 LoadingSubtitle = "by @HellZone",
-Theme = "Blue",
+Theme = "Ocean",
 ConfigurationSaving = {
 Enabled = true,
 FolderName = "HellZone",
@@ -898,3 +898,4 @@ end
 -- Memaksa efek "Luck Bait"
 local bait = require(game:GetService("ReplicatedStorage").Baits["Luck Bait"])
 bait.Luck = 999999999
+
