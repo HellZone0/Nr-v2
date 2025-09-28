@@ -27,7 +27,7 @@ local REFavoriteItem = replicatedStorage.Packages._Index["sleitnick_net@0.2.0"]
  local TierUtility = require(replicatedStorage.Shared.TierUtility)
 
 local Rayfield = loadstring(game:HttpGet('https://raw.githubusercontent.com/aldyjrz/katanyaStealer/refs/heads/main/ui/rayfield'))()
-getgenv().themes = { "Amethyst", "DarkBlue", "Green" }
+getgenv().themes = { "Ocean", "DarkBlue", "Green" }
 getgenv().dapatIkan = true
 -- Flag & Default Value
 getgenv().AutoSaveEnabled = false
@@ -36,7 +36,7 @@ getgenv().LastPosition = {}
 getgenv().randomTheme = getgenv().themes[math.random(1, #getgenv().themes)]
 -- Window
 local Window = Rayfield:CreateWindow({
-    Name = "Fish It Script - C",
+    Name = "Fish It Script - HellZone",
     LoadingTitle = "Fish It - by HellZone",
     LoadingSubtitle = "by @HellZone",
     ShowText = "Fish It - HellZone",
@@ -3067,3 +3067,4 @@ refreshInventory()
 
 disableCutScene()
  restorePosition()
+
