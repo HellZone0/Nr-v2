@@ -1,4 +1,4 @@
--- Fish It Script - AldyToi
+-- Fish It Script - HellZone
 print(
     "loaded successfully!\nyang jual bool dan titit nya rapet. aamiin")
 local Players = game:GetService("Players")
@@ -36,10 +36,10 @@ getgenv().LastPosition = {}
 getgenv().randomTheme = getgenv().themes[math.random(1, #getgenv().themes)]
 -- Window
 local Window = Rayfield:CreateWindow({
-    Name = "Fish It Script - AldyToi",
-    LoadingTitle = "Fish It - by AldyToi",
-    LoadingSubtitle = "by @AldyToi",
-    ShowText = "Fish It - AldyToi",
+    Name = "Fish It Script - C",
+    LoadingTitle = "Fish It - by HellZone",
+    LoadingSubtitle = "by @HellZone",
+    ShowText = "Fish It - HellZone",
     Theme = getgenv().randomTheme,
     ConfigurationSaving = {
         Enabled = true,
@@ -580,10 +580,10 @@ getgenv().Tabs.AboutTab:CreateButton({
 getgenv().Tabs.AboutTab:CreateButton({
     Name = "Tiktok",
     Callback = function()
-        setclipboard("https://tiktok.com/aldytoi")
+        setclipboard("https://tiktok.com/hellzone.store")
         Rayfield:Notify({
             Title = "Copied to clipboard!",
-            Content = "https://tiktok.com/aldytoi",
+            Content = "https://tiktok.com/hellzone.store",
             Duration = 1
         })
     end
@@ -591,10 +591,10 @@ getgenv().Tabs.AboutTab:CreateButton({
 getgenv().Tabs.AboutTab:CreateButton({
     Name = "GitHub",
     Callback = function()
-        setclipboard("https://github.com/aldyjrz")
+        setclipboard("https://github.com/HellZone0")
         Rayfield:Notify({
             Title = "Copied to clipboard!",
-            Content = " https://github.com/aldyjrz",
+            Content = " https://github.com/HellZone0",
             Duration = 1
         })
     end
@@ -2498,7 +2498,7 @@ getgenv().Tabs.WebhookTab:CreateSection("Discord Webhook")
 getgenv().Tabs.WebhookTab:CreateButton({
     Name = "Join Discord Server",
     Callback = function()
-        setclipboard("https://discord.gg/pe6UJNzHUT")
+        setclipboard("https://discord.gg/KbSJk2uaVs")
         Rayfield:Notify({
             Title = "Discord Invite",
             Content = "Link sudah dicopy ke clipboard.\nBuka browser kamu lalu paste.",
